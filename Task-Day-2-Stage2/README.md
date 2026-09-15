@@ -1,4 +1,6 @@
-Instalasi docker to ubuntu server aws
+**Instalasi docker to ubuntu server aws**
+
+
 1. pertama lakukan update dan upgarade server
    
    <img width="955" height="463" alt="image" src="https://github.com/user-attachments/assets/d78be2ea-361b-49d4-a39f-5ee55ebb5453" />
