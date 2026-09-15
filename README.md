@@ -11,11 +11,11 @@ Repositori ini berisi kumpulan tugas (tasks), latihan, dan proyek harian yang sa
 | **[Task-Day-1](./Task-Day-1)** | Pengenalan dasar DevOps | Selesai |
 | **[Task-Day-2](./Task-Day-2)** | Pengenalan Server & Konfigurasi Dasar | Selesai |
 | **[Task-Day-3](./Task-Day-3)** | Akses Server & Konfigurasi Lanjutan | Selesai |
-| **[Task-Day-4](./Task-Day-4)** | Penugasan Day 4 | Selesai |
-| **[Task-Day-5](./Task-Day-5)** | Penugasan Day 5 | Selesai |
-| **[Task-Day-6](./Task-Day-6)** | Penugasan Day 6 | Selesai |
-| **[Task-Day-1 (Stage 2)](./Task-Day-1-Stage2)** | Lanjutan / Stage 2 dari Task Day 1 | Selesai |
-| **[Task-Day-2 (Stage 2)](./Task-Day-2-Stage2)** | Lanjutan / Stage 2 dari Task Day 2 | Selesai |
+| **[Task-Day-4](./Task-Day-4)** | Setup Git and Github in Ubuntu | Selesai |
+| **[Task-Day-5](./Task-Day-5)** | Application in Server/Deploy app  NodeJS, Python, and Go | Selesai |
+| **[Task-Day-6](./Task-Day-6)** | Reverse Proxy | Selesai |
+| **[Task-Day-1 (Stage 2)](./Task-Day-1-Stage2)** | Cloud Computing/ Deploy to Server / Stage 2 dari Task Day 1 | Selesai |
+| **[Task-Day-2 (Stage 2)](./Task-Day-2-Stage2)** | Containerization and CICD Concept / Stage 2 dari Task Day 2 | Selesai |
 
 *'Daftar di atas akan terus diperbarui seiring berjalannya sesi bootcamp.*
 
