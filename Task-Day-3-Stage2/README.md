@@ -59,13 +59,34 @@
   ## 📁 Struktur Direktori Project 
  
   ```text
-Automation
-   └── Terraform
-       └── aws
-          ├── main.tf
-          ├── provider.tf
-          ├── data.tf
-          └── variables.tf
+Automation/
+├── Ansible
+│   ├── Inventory
+│   ├── ansible.cfg
+│   ├── config
+│   │   └── prometheus.yml
+│   ├── create-user.yaml
+│   ├── dockermonitoring
+│   │   ├── compose-monitoring.yml
+│   │   └── node-exporter.yml
+│   ├── group_vars
+│   │   ├── all
+│   │   └── webservers.yaml
+│   ├── instal-nginx.yaml
+│   ├── instalasi-docker.yaml
+│   ├── install-certbot.yaml
+│   ├── nginx-monitoring.yaml
+│   ├── start-exporter.yaml
+│   └── start-monitoring.yaml
+└── Terraform
+    └── aws
+        ├── data.tf
+        ├── main.tf
+        ├── outputs.tf
+        ├── provider.tf
+        ├── terraform.tfstate
+        ├── terraform.tfstate.backup
+        └── variables.tf
   ```
   ### Instal aws cli
 
