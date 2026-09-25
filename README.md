@@ -29,9 +29,11 @@ Berikut adalah beberapa teknologi yang dipelajari dan digunakan selama bootcamp:
 * **Operating System:** Linux (Ubuntu/CentOS)
 * **Version Control:** Git & GitHub
 * **Containerization:** Docker & Docker Compose
-* **CI/CD:** GitHub Actions / Jenkins*
-* **Container Orchestration:** Kubernetes (K3s) & Helm
+* **CI/CD:** GitHub Actions / Jenkins
+* **Infrastructure as Code (IaC):** Terraform
+* **Configuration Management & Automation:** Ansible
 * **Monitoring & Observability:** Prometheus & Grafana
+* **Container Orchestration:** Kubernetes (K3s) & Helm
 * **Cloud & Infrastructure:** AWS (on diupdate)
 
 ---
