@@ -6,17 +6,19 @@ Repositori ini berisi kumpulan tugas (tasks), latihan, dan proyek harian yang sa
 
 ## 📂 Daftar Tugas & Navigasi Harian
 
-| Hari / Task | Deskripsi Singkat | Status |
+| Task / Project | Deskripsi Singkat | Status |
 | :--- | :--- | :--- |
-| **[Task-Day-1](./Task-Day-1)** | Pengenalan dasar DevOps | Selesai |
-| **[Task-Day-2](./Task-Day-2)** | Pengenalan Server & Konfigurasi Dasar | Selesai |
-| **[Task-Day-3](./Task-Day-3)** | Akses Server & Konfigurasi Lanjutan | Selesai |
-| **[Task-Day-4](./Task-Day-4)** | Setup Git and Github in Ubuntu | Selesai |
-| **[Task-Day-5](./Task-Day-5)** | Application in Server/Deploy app  NodeJS, Python, and Go | Selesai |
-| **[Task-Day-6](./Task-Day-6)** | Reverse Proxy | Selesai |
-| **[Task-Day-7 (Stage 2)](./Task-Day-1-Stage2)** | Cloud Computing/ Deploy to Server / Stage 2 dari Task project 1 | Selesai |
-| **[Task-Day-8 (Stage 2)](./Task-Day-2-Stage2)** | Containerization and CICD Concept / Stage 2 dari Task project 2 | Selesai |
-| **[Task-Day-9 (Stage 2)](./Task-Day-3-Stage2)** | Automation Terraform, Ansible dan Monitoring / Stage 2 dari project Day 3 | Selesai |
+| **[Task-Project-1](./Task-Day-1)** | Pengenalan dasar DevOps | Selesai |
+| **[Task-Project-2](./Task-Day-2)** | Pengenalan Server & Konfigurasi Dasar | Selesai |
+| **[Task-Project-3](./Task-Day-3)** | Akses Server & Konfigurasi Lanjutan | Selesai |
+| **[Task-Project-4](./Task-Day-4)** | Setup Git and Github in Ubuntu | Selesai |
+| **[Task-Project-5](./Task-Day-5)** | Application in Server/Deploy app  NodeJS, Python, and Go | Selesai |
+| **[Task-Project-6](./Task-Day-6)** | Reverse Proxy | Selesai |
+| **[Task-Project-7 (Stage 2)](./Task-Day-1-Stage2)**  | Cloud Computing/ Deploy to Server / Stage 2 dari Task project 1 | Selesai |
+| **[Task-Project-8 (Stage 2)](./Task-Day-2-Stage2)**  | Containerization and CICD Concept / Stage 2 dari Task project 2 | Selesai |
+| **[Task-Project-9 (Stage 2)](./Task-Day-3-Stage2)**  | Automation Terraform, Ansible dan Monitoring / Stage 2 dari project 3 | Selesai |
+| **[Task-Project-10 (Stage 2)](./Task-Day-4-Stage2)** | Kubernetes setup and Wayshub deployment / Stage 2 dari project 4 | Selesai |
+
 
 *'Daftar di atas akan terus diperbarui seiring berjalannya sesi bootcamp.*
 
