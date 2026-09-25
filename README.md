@@ -30,6 +30,8 @@ Berikut adalah beberapa teknologi yang dipelajari dan digunakan selama bootcamp:
 * **Version Control:** Git & GitHub
 * **Containerization:** Docker & Docker Compose
 * **CI/CD:** GitHub Actions / Jenkins*
+* **Container Orchestration:** Kubernetes (K3s) & Helm
+* **Monitoring & Observability:** Prometheus & Grafana
 * **Cloud & Infrastructure:** AWS (on diupdate)
 
 ---
