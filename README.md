@@ -16,6 +16,7 @@ Repositori ini berisi kumpulan tugas (tasks), latihan, dan proyek harian yang sa
 | **[Task-Day-6](./Task-Day-6)** | Reverse Proxy | Selesai |
 | **[Task-Day-1 (Stage 2)](./Task-Day-1-Stage2)** | Cloud Computing/ Deploy to Server / Stage 2 dari Task Day 1 | Selesai |
 | **[Task-Day-2 (Stage 2)](./Task-Day-2-Stage2)** | Containerization and CICD Concept / Stage 2 dari Task Day 2 | Selesai |
+| **[Task-Day-2 (Stage 2)](./Task-Day-3-Stage2)** | Containerization and CICD Concept / Stage 2 dari Task Day 2 | Selesai |
 
 *'Daftar di atas akan terus diperbarui seiring berjalannya sesi bootcamp.*
 
