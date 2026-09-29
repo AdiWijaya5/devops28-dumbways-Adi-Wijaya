@@ -18,6 +18,7 @@ Repositori ini berisi kumpulan tugas (tasks), latihan, dan proyek harian yang sa
 | **[Task-Project-8](./Task-Week-08)**  | Containerization and CICD Concept | Stage 2 | Selesai |
 | **[Task-Project-9](./Task-Week-09)**  | Automation Terraform, Ansible dan Monitoring | Stage 2 | Selesai |
 | **[Task-Project-10](./Task-Week-10)** | Kubernetes setup and Wayshub deployment | Stage 2 | Selesai |
+| **[Final-Taks](./Final-Taks)** | Deploy Wayshub staging/production, CICD, Monitoring, Kubernetes | Stage 2 | On update |
 
 
 *'Daftar di atas akan terus diperbarui seiring berjalannya sesi bootcamp.*
