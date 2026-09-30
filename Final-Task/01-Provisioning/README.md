@@ -9,7 +9,7 @@
 <p align="center"><img width="1919" height="996" alt="image" src="https://github.com/user-attachments/assets/10e5a1b4-dfab-4a50-86ef-561ce10e43bb" /></p>
 
 ### Enter your username.
-  + skip Provide user access to the AWS Management Console - optional.  then click Next.
+  + Skip Provide user access to the AWS Management Console - optional.  then click Next.
  
 <p align="center"><img width="1919" height="1038" alt="image" src="https://github.com/user-attachments/assets/fb15b7df-1d72-4bcd-bd71-a97481edd6e7" /></p>
 
@@ -354,7 +354,7 @@ output "database_ip" {
  
 #
 
-## 5. Hasil Server
+## 5. Success integration Server with terraform
 
 <p align="center">Server</p>
 
@@ -454,7 +454,7 @@ ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDY23BJ48yFwQ2pF8kje6WD0r1
 
 ```
 
-### - Use Server with SSH Key
+### - Connect to the Server Using an SSH Key
 
 <p align="center">login Server</p>
 
