@@ -1,15 +1,18 @@
 # Repository
 ## Menambahkan Key ke GitHub
 
-### - Extract the public IP outputs and the generated public key:
+### - generated SSH key new to terminal EC2 :
 
   ```bash
 
-  terraform output generated_public_key
+  ssh-keygen -t rsa -b 4096 -C "adiwijaya.jy@gmail.com"
   ```
-<p align="center"><img width="960" height="425" alt="image" src="https://github.com/user-attachments/assets/2ffa5530-f158-4f12-8d81-07301644011b" /></p>
+<p align="center"><img width="960" height="186" alt="image" src="https://github.com/user-attachments/assets/2d546c80-87da-47b5-806a-8709d3469235" /></p>
+<p align="center"><img width="956" height="231" alt="image" src="https://github.com/user-attachments/assets/5728e797-1498-4285-b383-babe44e94f68" /></p>
 
-  (Salin/copy seluruh teks yang muncul, biasanya berawalan ```ssh-rsa ...``` atau ```ssh-ed25519 ...```).
+  (Salin/copy seluruh teks yang muncul, biasanya berawalan ```ssh-rsa ...``` atau ```ssh-ed25519 ...``` pindahken ke fail authorized_keys di ~/finaltask-adi/.ssh).
+  
+<p align="center"><img width="957" height="361" alt="image" src="https://github.com/user-attachments/assets/ddaf472e-9508-4366-82a0-577b81f1579e" /></p>
 
 ### - Daftarkan ke GitHub:
   + Buka GitHub di browser.
@@ -19,7 +22,7 @@
   + create name ```finaltask-adi``` lalu Paste isi public key yang sudah disalin tadi ke kolom Key.
   + Klik Add SSH key.
 
-  <p align="center"><img width="1919" height="990" alt="image" src="https://github.com/user-attachments/assets/fe859c65-0e7f-4967-9b01-93b3eb689a05" /></p>
+  <p align="center"><img width="1919" height="988" alt="Screenshot 2026-10-02 162149" src="https://github.com/user-attachments/assets/48641ffa-0c7a-4faa-8322-9b3d8d3bdcd7" /></p>
    <p align="center"><img width="1919" height="991" alt="image" src="https://github.com/user-attachments/assets/2b9b63fd-fee1-4d64-ab03-0724b626e800" /></p>
 
 ### - Create new repository 
@@ -72,12 +75,10 @@
 ```yaml
 
 ---
-- hosts: appservers
+- hosts: appserver
   become: true
   become_user: finaltask-adi
   vars:
-    # Path ke jay-key di dalam Ubuntu Server
-    ssh_key_path: "/home/finaltask-adi/.ssh/jay-key"
     repos:
       - name: "fe-dumbmerch"
         demo_url: "https://github.com/demo-dumbways/fe-dumbmerch.git"
@@ -91,77 +92,67 @@
       ansible.builtin.file:
         path: "/home/finaltask-adi/.ssh"
         state: directory
-        mode: '0700'
+        mode: "0700"
 
-    - name: Pastikan jay-key memiliki permission 600
+    - name: Pastikan authorized_keys memiliki permission 600
       ansible.builtin.file:
-        path: "{{ ssh_key_path }}"
+        path: "/home/finaltask-adi/.ssh/authorized_keys"
         mode: '0600'
 
-    - name: Tambahkan github.com ke known_hosts untuk menghindari prompt SSH
-      ansible.builtin.known_hosts:
-        name: "github.com"
-        key: "{{ lookup('pipe', 'ssh-keyscan github.com') }}"
-        path: "/home/finaltask-adi/.ssh/known_hosts"
-
-    - name: Verifikasi koneksi / Login GitHub via SSH menggunakan jay-key
+    - name: Verifikasi koneksi / Login GitHub via SSH menggunakan authorized_keys
       ansible.builtin.command:
-        cmd: "ssh -T -i {{ ssh_key_path }} -o StrictHostKeyChecking=no git@github.com"
+        cmd: "ssh -T git@github.com"
       register: ssh_test
-      failed_when: false # GitHub mengembalikan exit code 1 saat berhasil auth (Hi username!), jadi diizinkan
+      failed_when: false
       changed_when: false
 
-    - name: Konfigurasi global Git user (opsional tapi disarankan untuk push)
+    - name: Konfigurasi global Git user
       ansible.builtin.command: "{{ item }}"
       loop:
         - "git config --global user.name 'Adiwijaya5'"
         - "git config --global user.email 'adiwijaya5699@gmail.com'"
       changed_when: false
 
-    - name: Proses setup repository di Ubuntu Server menggunakan jay-key
+    # --- PERBAIKAN: Loop dipasang ke setiap task menggunakan variabel item ---
+
+    - name: Clone dari repo demo
+      ansible.builtin.git:
+        repo: "{{ item.demo_url }}"
+        dest: "/home/finaltask-adi/{{ item.name }}"
+        accept_hostkey: yes
+        force: yes
+        version: "master" # Pastikan clone dari branch main/master bawaan repo demo
       loop: "{{ repos }}"
-      loop_control:
-        loop_var: repo
-      block:
-        - name: Clone dari repo demo ({{ repo.name }})
-          ansible.builtin.git:
-            repo: "{{ repo.demo_url }}"
-            dest: "/home/finaltask-adi/{{ repo.name }}"
-            accept_hostkey: yes
-            force: yes
 
-        - name: Ubah remote URL ke private repository Adiwijaya5
-          ansible.builtin.command:
-            cmd: "git remote set-url origin {{ repo.private_url }}"
-            chdir: "/home/finaltask-adi/{{ repo.name }}"
-          changed_when: true
+    - name: Ubah remote URL ke private repository AdiWijaya5
+      ansible.builtin.command:
+        cmd: "git remote set-url origin {{ item.private_url }}"
+        chdir: "/home/finaltask-adi/{{ item.name }}"
+      loop: "{{ repos }}"
+      changed_when: true
 
-        - name: Set SSH key server khusus untuk git command di repository ini
-          ansible.builtin.command:
-            cmd: "git config core.sshCommand \"ssh -i {{ ssh_key_path }} -o IdentitiesOnly=yes\""
-            chdir: "/home/finaltask-adi/{{ repo.name }}"
-          changed_when: true
 
-        - name: Buat dan aktifkan branch staging
-          ansible.builtin.command:
-            cmd: "git checkout -b staging"
-            chdir: "/home/finaltask-adi/{{ repo.name }}"
-          register: checkout_staging
-          failed_when: false
-          changed_when: "'Switched to a new branch' in checkout_staging.stdout"
+    - name: Buat dan aktifkan branch staging secara lokal
+      ansible.builtin.command:
+        cmd: "git checkout -b staging || git checkout staging"
+        chdir: "/home/finaltask-adi/{{ item.name }}"
+      loop: "{{ repos }}"
+      register: checkout_staging
+      failed_when: false
+      changed_when: "'Switched to a new branch' in checkout_staging.stdout"
 
-        - name: Push branch staging ke private repo menggunakan jay-key
-          ansible.builtin.command:
-            cmd: "git push -u origin staging"
-            chdir: "/home/finaltask-adi/{{ repo.name }}"
-          changed_when: true
 
+    - name: Push branch staging ke private repo menggunakan authorized_keys
+      ansible.builtin.command:
+        cmd: "git push -u origin staging"
+        chdir: "/home/finaltask-adi/{{ item.name }}"
+      loop: "{{ repos }}"
+      changed_when: true
 
 ```
+## Repo baru telah berhasil dibuat.
 
-
-
-<p align="center"></p>
+<p align="center"><img width="1919" height="1039" alt="image" src="https://github.com/user-attachments/assets/4de74add-b226-48d8-8ab3-c974cb9dfdfa" /></p>
 <p align="center"></p>
 <p align="center"></p>
 <p align="center"></p>
