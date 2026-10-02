@@ -85,19 +85,7 @@
     
 <p align="center"><img width="1298" height="379" alt="image" src="https://github.com/user-attachments/assets/211b2180-6cc9-4bb2-80a1-28700e63000c" /></p>
 
-
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
-
-
-
+#
 ## 4. Create folder Terrafrom
 ### - Create file main.tf
 
@@ -128,14 +116,14 @@ data "aws_ami" "ubuntu" {
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
-  tags                 = { Name = "VPC-${var.environment}" }
+  tags                 = { Name = "VPC" }
 }
 
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
-  tags                    = { Name = "Subnet-${var.environment}" }
+  tags                    = { Name = "Subnet" }
 }
 
 resource "aws_internet_gateway" "gw" {
@@ -153,6 +141,55 @@ resource "aws_route_table" "rt" {
 resource "aws_route_table_association" "rta" {
   subnet_id      = aws_subnet.public.id
   route_table_id = aws_route_table.rt.id
+}
+
+# =======================================================
+# --- SECURITY GROUP ---
+# =======================================================
+
+resource "aws_security_group" "sg" {
+  name        = "security-group"
+  description = "Security group allowing SSH 22, HTTP, HTTPS, PostgreSQL"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description = "TCP"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "PostgreSQL"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 # =======================================================
@@ -176,39 +213,80 @@ resource "aws_key_pair" "generated" {
 
 resource "local_file" "private_key" {
   content         = tls_private_key.this.private_key_pem
-  filename        = "${path.module}/jay-key.pem"
+  filename        = "/home/adi/.ssh/jay-key.pem"
   file_permission = "0400"
 }
 
 # =======================================================
-# --- SERVERS: GATEWAY, APP, AND DATABASE ---
+# --- DYNAMIC SERVERS PROVISIONING ---
 # =======================================================
 
-resource "aws_instance" "gateway" {
+locals {
+  servers = {
+    "gateway"    = { type = var.gateway_instance_type, name = "Gateway-Server" }
+    "appserver"  = { type = var.app_instance_type, name = "App-Server" }
+    "database"   = { type = var.db_instance_type, name = "Database-Server" }
+    "master"     = { type = var.k8s_master_instance_type, name = "Master" }
+    "worker-1"   = { type = var.k8s_worker_instance_type, name = "Worker-1" }
+    "worker-2"   = { type = var.k8s_worker_instance_type, name = "Worker-2" }
+  }
+}
+
+resource "aws_instance" "server" {
+  for_each               = local.servers
   ami                    = data.aws_ami.ubuntu.id
-  instance_type          = var.gateway_instance_type
+  instance_type          = each.value.type
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.sg.id]
   key_name               = aws_key_pair.generated.key_name
-  tags                   = { Name = "Gateway-Server-${var.environment}" }
+
+  credit_specification {
+      cpu_credits = "standard"
+    }
+
+  tags = {
+    Name = each.value.name
+    OS   = "Ubuntu 22.04 LTS"
+  }
 }
 
-resource "aws_instance" "appserver" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = var.app_instance_type
-  subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.sg.id]
-  key_name               = aws_key_pair.generated.key_name
-  tags                   = { Name = "App-Server-${var.environment}" }
+# =======================================================
+# --- ELASTIC IP ---
+# =======================================================
+
+locals {
+  # Batasi server yang diberi EIP agar tidak melewati limit AWS (maksimal 5)
+  servers_with_eip = {
+    "gateway" = local.servers["gateway"]
+    "master"  = local.servers["master"]
+  }
 }
 
-resource "aws_instance" "database" {
-  ami                     = data.aws_ami.ubuntu.id
-  instance_type           = var.db_instance_type
-  subnet_id               = aws_subnet.public.id
-  vpc_security_group_ids  = [aws_security_group.sg.id]
-  key_name                = aws_key_pair.generated.key_name
-  tags                    = { Name = "Database-Server-${var.environment}" }
+resource "aws_eip" "eip_server" {
+  for_each   = local.servers_with_eip
+  instance   = aws_instance.server[each.key].id
+  domain     = "vpc"
+  depends_on = [aws_internet_gateway.gw]
+  tags       = { Name = "EIP-${each.value.name}" }
+}
+
+# =======================================================
+# --- EBS VOLUMES & ATTACHMENTS ---
+# =======================================================
+
+resource "aws_ebs_volume" "storage_server" {
+  for_each          = local.servers
+  availability_zone = aws_instance.server[each.key].availability_zone
+  size              = 15
+
+  tags = { Name = "Volume-${each.value.name}" }
+}
+
+resource "aws_volume_attachment" "attach_server" {
+  for_each    = local.servers
+  device_name = "/dev/xvdf"
+  volume_id   = aws_ebs_volume.storage_server[each.key].id
+  instance_id = aws_instance.server[each.key].id
 }
 ```
 
@@ -219,6 +297,7 @@ resource "aws_instance" "database" {
   + ```filter "name"``` -> Mencari template sistem operasi Ubuntu versi Jammy Jellyfish 22.04 LTS (64-bit x86).
   + ```filter "virtualization-type"``` -> Memastikan tipe virtualisasi menggunakan jenis ```vim``` (Hardware Virtual Machine) yang didukung standar AWS.
 
+#
 - Berikut adalah penjelasan per bagian dari: NETWORKING (VPC & Subnet) 
   + ```aws_vpc.main``` -> Membuat jaringan virtual privat (VPC) dengan blok CIDR ```10.0.0.0/16``` mengaktifkan fitur DNS hostnames, dan memberikan tag nama berdasarkan variabel (var.environment)
   + ```aws_subnet.public``` -> Membuat subnet publik di dalam VPC utama dengan blok CIDR  ```10.0.1.0/24``` . Dan fitur ```map_public_ip_on_launch = true``` memastikan setiap instance yang dibuat di subnet ini akan otomatis mendapatkan IP publik.
@@ -226,16 +305,37 @@ resource "aws_instance" "database" {
   + ```aws_route_table.rt``` -> Membuat tabel rute (route table) di dalam VPC. Di dalamnya terdapat aturan rute  ```(0.0.0.0/0)```  yang mengarahkan seluruh lalu lintas keluar (traffic) menuju Internet Gateway.
   + ```aws_route_table_association.rta``` -> Menghubungkan (associate) tabel rute publik tersebut ke subnet publik  ```(aws_subnet.public)``` agar subnet tersebut resmi menjadi public subnet yang bisa mengakses internet.
 
+ #
+- Berikut adalah penjelasan per bagian dari: SECURITY GROUP
+  + ```aws_security_group.sg``` -> Membuat firewall virtual baru untuk melindungi server di dalam VPC utama (aws_vpc.main.id).
+  + ```name``` & ```description``` -> Memberikan nama ```"security-group"``` dan catatan deskripsi agar mudah dikenali di AWS Console.
+  + ```ingress``` (Port 22 - SSH) -> Membuka akses remote server dari internet.
+  + ```ingress``` (Port 80 - HTTP) -> Membuka akses website standar.
+  + ```ingress``` (Port 443 - HTTPS) -> Membuka akses website aman ber-SSL.
+  + ```ingress``` (Port 5432 - PostgreSQL) -> Membuka akses database. 
+  +  ```egress``` (Protocol -1) -> Mengizinkan server bebas keluar ke internet (untuk update, install aplikasi, dll).
+
+#
 - Berikut adalah penjelasan per bagian dari:Generate private key dengan algoritma RSA
   + ```tls_private_key.this``` -> Membuat Kunci Privat (RSA). Berfungsi untuk menghasilkan sepasang kunci kriptografi (publik dan privat) menggunakan ```algoritma RSA``` dengan ukuran ```rsa_bits  = 4096``` yang sangat aman.
   + ```aws_key_pair.generated``` -> Mendaftarkan Kunci Publik ke AWS. Mengambil bagian public key dari kunci yang baru dibuat, lalu mendaftarkannya ke AWS dengan nama ```jay-key``` agar bisa dipasang pada server EC2.
   + ```local_file.private_key``` -> Menyimpan Kunci Privat Secara Lokal. lalu otomatis menyimpan bagian private key ```(private_key_pem)``` ke dalam komputer lokal dengan nama file ```jay-key.pem``` dan mengatur izin akses file menjadi 0400 (hanya bisa dibaca) demi keamanan.
- 
-- Berikut adalah penjelasan per bagian dari: SERVERS:GATEWAY, APP, AND DATABASE
-  + ```aws_instance.gateway``` -> Untuk membuat server virtual (EC2) baru menggunakan sistem operasi Ubuntu, tipe spesifikasi dari variabel, ditempatkan di subnet publik, dihubungkan dengan security group dan kunci akses (key pair), serta diberi nama tag server gateway.
-  + ```aws_instance.appserver``` -> Membuat server EC2 terpisah yang berfungsi sebagai tempat menjalankan aplikasi utama, dengan konfigurasi dasar (AMI, subnet, security group, dan key pair) yang serupa.
-  + ```aws_instance.database``` -> Membuat server EC2 ketiga yang dikhususkan untuk menjalankan database, menggunakan spesifikasi tipe database dari variabel serta terhubung ke jaringan dan kunci akses yang sama.
 
+ #
+- Berikut adalah penjelasan per bagian dari: DYNAMIC SERVERS PROVISIONING (Staging & Production) 
+  + ```locals { servers = { ... } }``` -> Untuk mendefinisikan kumpulan peta (map) data server yang berisi konfigurasi tipe instance dan nama tag untuk keenam node secara terpusat (Gateway, App Server, Database, Master, Worker-1, dan Worker-2).
+  + ```resource "aws_instance" "server"``` -> Membuat server virtual (EC2) secara dinamis menggunakan perulangan ```for_each``` berdasarkan data lokal ```servers```. Menggunakan AMI Ubuntu 22.04 LTS, spesifikasi tipe dari variabel masing-masing node, ditaruh di subnet publik, dihubungkan dengan security group dan key pair ```jay-key``` , serta diberi tag nama server secara otomatis.
+  + ```aws_instance.database``` -> Membuat server EC2 ketiga yang dikhususkan untuk menjalankan database, menggunakan spesifikasi tipe database dari variabel serta terhubung ke jaringan dan kunci akses yang sama.
+  + ```credit_specification``` -> Mengatur mode kredit CPU (diset ke ```"standard"```) untuk instance tipe burstable (seperti ```t3.micro ```atau ```t3.small```) guna memastikan performa kredit CPU terkontrol dengan baik.
+  + ```locals { servers_with_eip = { ... } }``` -> Untuk menyaring server yang dipasangi IP tetap (hanya gateway dan master) agar tidak melanggar batas maksimal 5 Elastic IP dari AWS.
+  + ```resource "aws_eip" "eip_server"``` -> Membuat dan mengalokasikan Elastic IP (IP publik statis) secara dinamis untuk setiap server yang dibuat, serta memastikan prosesnya bergantung pada ketersediaan internet gateway ```(depends_on)```.
+  + ```instance = aws_instance.server[each.key].id``` -> Menyambungkan IP statis yang sudah dibuat langsung ke instance server yang bersesuaian.
+  + ``` domain = "vpc"``` -> Menentukan bahwa IP dibuat khusus untuk jaringan cloud VPC modern.
+  + ```tags = { Name = "EIP-${each.value.name}" }``` -> Memberikan nama label pada IP di dashboard AWS agar mudah dikenali.
+  + ```resource "aws_ebs_volume" "storage_server"``` -> Membuat volume penyimpanan tambahan (EBS) berukuran 15 GB secara dinamis untuk masing-masing server di Availability Zone yang sama persis dengan tempat server tersebut berada.
+  + ```resource "aws_volume_attachment" "attach_server"``` -> Menghubungkan (attach) volume EBS yang telah dibuat ke setiap instance server pada jalur perangkat blok (device name) /dev/xvdf
+
+  
 # 
 
 ### - Create file variabels.tf
@@ -243,7 +343,7 @@ resource "aws_instance" "database" {
 ```hcl
 
 # =======================================================
-# --- Variabel region ---
+# --- Variabel staging ---
 # =======================================================
 
 variable "aws_region" {
@@ -256,15 +356,9 @@ variable "aws_region" {
 # --- Variabel staging ---
 # =======================================================
 
-variable "environment" {
-  type    = string
-  default = "staging"
-  description = "Environment (staging atau production)"
-}
-
 variable "gateway_instance_type" {
   type    = string
-  default = "t2.micro"
+  default = "t3.micro"
   description = "Tipe instance untuk Gateway / Nginx Reverse Proxy"
 }
 
@@ -276,8 +370,24 @@ variable "app_instance_type" {
 
 variable "db_instance_type" {
   type    = string
-  default = "t2.micro"
+  default = "t3.micro"
   description = "Tipe instance untuk Database Server"
+}
+
+# =======================================================
+# --- Variabel untuk Kubernetes (Production) ---
+# =======================================================
+
+variable "k8s_master_instance_type" {
+  type        = string
+  default     = "t3.small"
+  description = "Tipe instance untuk Node Master Kubernetes"
+}
+
+variable "k8s_worker_instance_type" {
+  type        = string
+  default     = "t3.small"
+  description = "Tipe instance untuk Node Worker Kubernetes"
 }
 
 ```
@@ -287,11 +397,13 @@ variable "db_instance_type" {
   + ```aws_region``` -> Untuk menentukan wilayah (region) AWS default yang akan digunakan, yaitu ```ap-southeast-3``` (Jakarta).
 
 - Berikut adalah penjelasan per bagian dari: Variabel staging
-  + ```environment``` -> Untuk menentukan nama lingkungan infrastruktur dengan nilai default staging (biasanya digunakan untuk memberi nama tag otomatis).
-  + ```gateway_instance_type``` -> Menentukan spesifikasi ukuran server (tipe instance) untuk Gateway atau Nginx Reverse Proxy, yaitu type ```t2.micro```.
+  + ```gateway_instance_type``` -> Menentukan spesifikasi ukuran server (tipe instance) untuk Gateway atau Nginx Reverse Proxy, yaitu type ```t3.micro```. harisnya t2.micro akan tetapi di aws sudah tidak ada saya menggunakan opsi t3.micro dengan cpu2 ram 1gb
   + ```app_instance_type``` -> Menentukan spesifikasi ukuran server untuk App Server (Server Aplikasi), yaitu type ```t3.small```.
-  + ```db_instance_type``` -> Menentukan spesifikasi ukuran server untuk Database Server, yaitu type ```t2.micro```.
-
+  + ```db_instance_type``` -> Menentukan spesifikasi ukuran server untuk Database Server, yaitu type ```t3.micro```.
+- 
+  + ```k8s_master_instance_type``` -> Menentukan spesifikasi ukuran server untuk App Server (Server Aplikasi), yaitu type ```t3.small```.
+  + ```k8s_worker_instance_type``` -> Menentukan spesifikasi ukuran server untuk App Server (Server Aplikasi), yaitu type ```t3.small```.
+Berikut adalah penjelasan per bagian dari: Variabel Production    
 #
 
 ### - Create file provider.tf
@@ -329,38 +441,116 @@ provider "aws" {
 # Output IP Address for Ansible Staging
 # =======================================================
 
-output "gateway_ip" {
-  value = aws_instance.gateway.public_ip
+output "EIP-gateway_ip" {
+  description = "Public IP untuk Gateway Server"
+  value       = aws_eip.eip_server["gateway"].public_ip
 }
 
+output "EIP-master_ip" {
+  description = "Public IP untuk Kubernetes Master Server"
+  value       = aws_eip.eip_server["master"].public_ip
+}
+
+# Untuk server yang tidak pakai EIP
 output "appserver_ip" {
-  value = aws_instance.appserver.public_ip
+  description = "Public IP untuk App Server"
+  value       = aws_instance.server["appserver"].public_ip
 }
 
 output "database_ip" {
-  value = aws_instance.database.public_ip
+  description = "Public IP untuk Database Server"
+  value       = aws_instance.server["database"].public_ip
+}
+
+output "worker1_ip" {
+  description = "Public IP untuk Kubernetes Worker-1 Server"
+  value       = aws_instance.server["worker-1"].public_ip
+}
+
+output "worker2_ip" {
+  description = "Public IP untuk Kubernetes Worker-2 Server"
+  value       = aws_instance.server["worker-2"].public_ip
 }
 
 
 ```
 ### Penjelasan outputs.tf
 - Berikut adalah penjelasan per bagian dari: Output Terraform
-  + ```gateway_ip``` -> Yang berfungsi untuk menampilkan atau mengeluarkan informasi alamat IP publik dari server Gateway setelah proses pembuatan infrastruktur selesai.
-  + ```appserver_ip``` -> Yang berfungsi untuk menampilkan alamat IP publik dari server App Server (aplikasi).
-  + ```database_ip``` -> Yang berfungsi untuk menampilkan alamat IP publik dari server Database.
-
-
-<p align="center">Outputs IP</p>
+  + ```output``` -> Menampilkan informasi IP publik ke layar terminal setelah proses terraform apply selesai
+  + ```output "EIP-gateway_ip"``` & ```"EIP-master_ip"``` -> Mengambil IP dari resource Elastic IP ```(aws_eip.eip_server)```, karena kedua server ini (Gateway dan Master) menggunakan IP statis/permanen yang tidak akan berubah.
+  + ```output "appserver_ip"```, ```"database_ip"```, dll. -> Mengambil IP langsung dari instance EC2 (aws_instance.server), karena server-server ini tidak menggunakan Elastic IP (untuk menghindari batas limit AWS), melainkan menggunakan IP publik dinamis bawaan AWS.
  
 #
 
-## 5. Success integration Server with terraform
 
-<p align="center">Server</p>
+## 5 . Run terraform Inisialisasi
+
+```bash
+
+terraform init
+```
+
+<p align="center"><img width="961" height="619" alt="image" src="https://github.com/user-attachments/assets/c6659afd-d5cf-4507-9634-2f9f54c57199" /></p>
+
+## 6. Execute terraform plan (Review Plan)
+
+```bash
+
+terraform plan
+```
+<p align="center"><img width="957" height="184" alt="image" src="https://github.com/user-attachments/assets/548fa2dd-3393-4591-bd81-a1c83577d4cd" /></p>
+
+## 6. Run terraform apply 
+
+```bash
+
+terraform apply
+```
+
+<p align="center"><img width="905" height="231" alt="image" src="https://github.com/user-attachments/assets/677ab699-77d0-4cb3-bddd-2279a6d00ba3" /></p>
+
+## 7. Success integration Server with terraform
+
+<p align="center"><img width="1913" height="1036" alt="image" src="https://github.com/user-attachments/assets/3d3f862e-2830-42cc-a5db-6d230c6ae2c2" /></p>
+
+### - Success key to save local computer
+<p align="center"><img width="955" height="357" alt="image" src="https://github.com/user-attachments/assets/651881e9-49a9-4dd2-8c33-d7cbd0644553" /></p>
+
+### - Secure your .pem file permissions
+  ```bash
+
+  chmod 400 /home/adi/.ssh/jay-key.pem
+  ```
+<p align="center"><img width="959" height="255" alt="image" src="https://github.com/user-attachments/assets/e75b7142-f88e-4118-90cf-f290fd5612cb" /></p>
+
+#
+## 8. Test Login With SSH keys
+### - App-Server => Success login
+<p align="center"><img width="956" height="783" alt="image" src="https://github.com/user-attachments/assets/1a43a27e-5b31-468a-8d60-611db13cd109" /></p>
+
+#
+### - Database-Server => Success login
+<p align="center"><img width="959" height="789" alt="image" src="https://github.com/user-attachments/assets/c82f68f2-d2ce-4f9e-b92e-7b640d8485c1" /></p>
+
+#
+### - Gateway-Server => Success login
+<p align="center"><img width="956" height="778" alt="image" src="https://github.com/user-attachments/assets/9cf78bd6-ef0a-43ee-a649-761aba537353" /></p>
+
+#
+### - Master => Success login
+<p align="center"><img width="958" height="802" alt="image" src="https://github.com/user-attachments/assets/6ba089ff-6747-4282-aaa2-ba1d370924e7" /></p>
+
+#
+### - Worker-1 => Success login
+<p align="center"><img width="959" height="804" alt="image" src="https://github.com/user-attachments/assets/9f04bb88-f1bd-4da5-bb9b-9c449e954e17" /></p>
+
+#
+### - Worker-2 => Success login
+<p align="center"><img width="959" height="807" alt="image" src="https://github.com/user-attachments/assets/22314974-c7e2-4995-830f-a65676e7a866" />
+</p>
 
 
-
-## 6. Create folder Ansible
+## 9. Create folder Ansible
 ### - Create file ansible.cfg
 
 ```hcl
@@ -381,13 +571,22 @@ ansible_python_interpreter = /usr/bin/python3
 ```yaml
 
 [gateway]
-138.189.12.3
+15.232.124.118
 
 [appservers]
-118.125.763.23
+43.218.140.185
 
 [databases]
-172.87.23.78
+16.79.57.75
+
+[master]
+15.232.150.220
+
+[worker-1]
+108.136.50.89
+
+[worker-2]
+16.78.50.175
 
 ```
 
@@ -402,10 +601,6 @@ ansible_python_interpreter = /usr/bin/python3
 ansible_port: 22
 ansible_user: ubuntu
 
-# Konfigurasi Ansibel 
-target_user: "finaltask-adi"
-user_password_hash: "$6$JVoSl9OOUFYIc1XO$hhDqhKBs2uxqXlLaXkdf7WEHxbb.NstWxATa3DnksK..."
-ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDY23BJ48yFwQ2pF8kje6WD0r1U57..."
 
 ```
 
@@ -453,12 +648,28 @@ ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDY23BJ48yFwQ2pF8kje6WD0r1
         enabled: true
 
 ```
-
-### - Connect to the Server Using an SSH Key
-
-<p align="center">login Server</p>
-
 #
+### Penjelasan Provisioning.yaml
+  + ```hosts: all``` -> Menjalankan perintah ini ke seluruh server yang ada di dalam inventory Ansible.
+  + ```become: true``` -> Menjalankan perintah menggunakan hak akses superuser (sudo), setara dengan root.
+  + ```ansible.builtin.apt```(Update cache) -> Melakukan pembaruan repository APT (```apt update```) pada sistem Ubuntu agar daftar paket aplikasi selalu yang terbaru, dengan batasan waktu cache ```3600``` detik (1 jam) agar prosesnya tidak berulang-ulang terlalu sering.
+  + ```hosts: gateway``` -> Perintah di bagian ini hanya dikhususkan untuk server yang tergabung dalam grup ```gateway```.
+  + ```Install Nginx``` -> Mengunduh dan menginstal web server ```Nginx``` menggunakan paket manajer ```apt``` (```state: present```).
+  + ```Service Nginx``` -> Memastikan layanan Nginx langsung dijalankan (```state: started```) dan diset otomatis aktif (```enabled: true```) setiap kali server dinyalakan ulang.
+  + ```hosts: databases``` -> Perintah di bagian ini hanya dikhususkan untuk server yang berada di dalam grup ```databases```.
+  + ```Install PostgreSQL``` -> Menginstal server database PostgreSQL melalui ```apt```.
+  + ```Service PostgreSQL``` -> Memastikan layanan database PostgreSQL dijalankan (```state: started```) dan otomatis aktif kembali (```enabled: true```) saat server reboot.
+
+### - Success Run playbook
+```bash
+
+ansible-playbook provisioning.yaml
+```
+
+<p align="center"><img width="956" height="981" alt="image" src="https://github.com/user-attachments/assets/5747efbd-77b7-44bc-9de6-330c50d32c65" /></p>
+<p align="center"><img width="964" height="257" alt="image" src="https://github.com/user-attachments/assets/c49dc848-44f8-4289-ba2e-e063cc4d161c" /></p>
+
+
 
 
 
