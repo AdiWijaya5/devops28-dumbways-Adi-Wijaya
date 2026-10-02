@@ -141,6 +141,29 @@
       failed_when: false
       changed_when: "'Switched to a new branch' in checkout_staging.stdout"
 
+    - name: Buat file .env khusus untuk frontend (fe-dumbmerch)
+      ansible.builtin.copy:
+        content: "REACT_APP_BASEURL=https://api.adi.studentdumbways.my.id/api/v1\n"
+        dest: "/home/finaltask-adi/fe-dumbmerch/.env"
+        mode: '0644'
+      when: item.name == "fe-dumbmerch"
+      loop: "{{ repos }}"
+
+    - name: Stage semua file (git add)
+      ansible.builtin.command:
+        cmd: "git add ."
+        chdir: "/home/finaltask-adi/{{ item.name }}"
+      loop: "{{ repos }}"
+      changed_when: true
+
+    - name: Commit perubahan ke repository lokal
+      ansible.builtin.command:
+        cmd: "git commit -m 'Initial commit with staging branch and configuration'"
+        chdir: "/home/finaltask-adi/{{ item.name }}"
+      loop: "{{ repos }}"
+      register: git_commit
+      failed_when: false
+      changed_when: "'nothing to commit' not in git_commit.stdout"
 
     - name: Push branch staging ke private repo menggunakan authorized_keys
       ansible.builtin.command:
@@ -153,7 +176,12 @@
 ## Repo baru telah berhasil dibuat.
 
 <p align="center"><img width="1919" height="1039" alt="image" src="https://github.com/user-attachments/assets/4de74add-b226-48d8-8ab3-c974cb9dfdfa" /></p>
-<p align="center"></p>
+
+## dan berhasil menambahkan .env (REACT_APP_BASEURL) -> api
+
+<p align="center"><img width="957" height="441" alt="image" src="https://github.com/user-attachments/assets/dcbc3a0e-95d5-40c7-ae57-dd3a02a97edc" /></p>
+
+
 <p align="center"></p>
 <p align="center"></p>
 <p align="center"></p>
