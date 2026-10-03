@@ -1,7 +1,8 @@
 # Web Server
 
-## Web server ini buat config domain setiap server/app
+* **Dalam arsitektur server**, **Web Server (seperti Nginx)** bertindak sebagai **pintu gerbang utama** sekaligus **polisi lalu lintas trafik**. 
 
+* Tugas utamanya adalah membaca nama domain yang diakses oleh pengguna dari luar, lalu mengarahkannya ke server, aplikasi, atau kontainer Docker yang tepat di dalam internal sistem.
 
 ### 1. Create Taks ansible-Playbook file name setup-gateway-ssl.yaml -> staging
 
