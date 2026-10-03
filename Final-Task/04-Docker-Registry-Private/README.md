@@ -25,6 +25,7 @@ registry_storage_path: "/var/lib/registry"
       ansible.builtin.apt:
         name:
           - apt-transport-https
+          - ca-certificates
           - curl
           - gnupg
           - lsb-release
@@ -36,7 +37,7 @@ registry_storage_path: "/var/lib/registry"
       ansible.builtin.file:
         path: /etc/apt/keyrings
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Add Docker's official GPG key
       ansible.builtin.shell: |
@@ -54,7 +55,7 @@ registry_storage_path: "/var/lib/registry"
         signed_by: /etc/apt/keyrings/docker.gpg
         state: present
 
-    - name : Install Docker Engine and Plugin
+    - name: Install Docker Engine and Plugin
       ansible.builtin.apt:
         name:
           - docker-ce
@@ -63,15 +64,15 @@ registry_storage_path: "/var/lib/registry"
           - docker-buildx-plugin
           - docker-compose-plugin
         state: present
-        update_cache: yes
+        update_cache: true
 
     - name: Ensure Docker service is running and enabled
       ansible.builtin.service:
         name: docker
         state: started
-        enabled: yes
+        enabled: true
 
-    # --- 2. PYTHON DOCKER SDK (Required for Ansible Docker Module) ---
+    # --- 2. PYTHON DOCKER SDK  ---
     - name: Install python3-pip and Docker SDK for Python
       ansible.builtin.apt:
         name:
@@ -84,7 +85,7 @@ registry_storage_path: "/var/lib/registry"
       ansible.builtin.file:
         path: "{{ registry_storage_path }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Run official Docker Registry container
       community.docker.docker_container:
@@ -96,6 +97,7 @@ registry_storage_path: "/var/lib/registry"
           - "{{ registry_port }}:5000"
         volumes:
           - "{{ registry_storage_path }}:/var/lib/registry"
+
 
 ```
 
