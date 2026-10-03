@@ -1,5 +1,13 @@
 # SERVER 
+
+Dalam arsitektur modern, **Server** tidak lagi dibuat secara manual lewat dasbor web AWS, melainkan dikelola sepenuhnya sebagai kode (**Infrastructure as Code - IaC**). Pendekatan ini memisahkan proses pembuatan fisik server (Terraform) dengan proses pengisian konfigurasinya (Ansible).
+
 ## AWS Infrastructure Automation & Configuration (Terraform & Ansible)
+
+* **Terraform (The Skeleton):** Membuat bentuk fisik, jaringan, dan keamanan luar server di AWS cloud.
+* **Ansible (The Brain):** Masuk ke dalam server fisik untuk menginstal tools, mengatur domain, mengamankan password, dan menghidupkan aplikasi microservices Anda secara otomatis.
+
+---
 
 
 ## 1. Provision Infrastructure with Terraform
