@@ -1,6 +1,20 @@
 # Repository
-## 1. Menambahkan Key ke GitHub
 
+## Sistem ini mengotomatiskan siklus rilis kode aplikasi menggunakan **GitHub Private Repository** dengan pemisahan jalur lingkungan (*environment*).
+---
+
+### 1. Keamanan & Akses
+* **Private Repository:** Kode dikunci total dari publik. Akses edit/unduh wajib melalui autentikasi **SSH Key** atau **GitHub Token (PAT)**.
+
+### 2. Pembagian Branch
+* **Branch `staging`:** Tempat uji coba fitur baru sebelum rilis.
+* **Branch `production`:** Tempat penyimpanan kode final yang sudah stabil dan siap pakai.
+
+### 3. Otomatisasi Mandiri (CI/CD per Branch)
+* **Pipeline Staging:** Dipicu oleh push ke branch `staging`. Otomatis mem-build dan merilis aplikasi ke server staging (`staging.adi.studentdumbways.my.id`).
+* **Pipeline Production:** Dipicu oleh push/merge ke branch `production`. Otomatis mem-build dan merilis aplikasi ke server produksi utama.
+  
+## Menambahkan Key ke GitHub
 ### 1. generated SSH key new to terminal EC2 :
 
   ```bash
