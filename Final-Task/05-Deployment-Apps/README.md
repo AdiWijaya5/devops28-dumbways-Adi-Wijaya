@@ -1,5 +1,7 @@
 # Deployment-App
 
+Seluruh komponen dideploy menggunakan **Docker Container** dengan kombinasi penggunaan image resmi (Database) dan pembuatan image kustom (Frontend & Backend).
+
 ## 1. Create Taks ansible-Playbook file name deploy-app.yaml
 
 ```yaml
