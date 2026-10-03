@@ -1,5 +1,21 @@
 # Provisioning
 
+## Karena keterbatasan kombinasi alokasi *resource* pada tipe instans bawaan AWS EC2, spesifikasi perangkat keras disesuaikan dengan menggunakan tipe instans **`t3.micro`** (yang memiliki profil standar **2 vCPU dan 1 GiB RAM**).
+---
+
+### Realisasi Spesifikasi Infrastruktur
+
+Otomatisasi dikelola penuh dari **Local Machine** menggunakan kolaborasi **Terraform** dan **Ansible**. Berikut adalah profil server yang digunakan di AWS:
+
+*   **Gateway Server (`t3.micro` - 2 CPU, 1GB RAM):**  
+    Bertindak sebagai gerbang utama lalu lintas data, menjalankan Nginx Reverse Proxy, otomasi SSL Certbot, serta meng-host Private Docker Registry.
+*   **Database Server (`t3.micro` - 2 CPU, 1GB RAM):**  
+    Server terisolasi khusus untuk menjalankan container database PostgreSQL 15 secara aman.
+*   **Appserver (`t3.small` - 2 CPU, 2GB RAM):**  
+    Server utama dengan RAM lebih besar yang didedikasikan untuk menangani proses kompilasi (*build time*) serta menjalankan container Frontend dan Backend aplikasi.
+
+---
+
 ## 1. Add IAM User
 ### Create IAM User aws  and cofigure aws to terrafrom
   + Open Dasboard Identity and Access Management (IAM)
