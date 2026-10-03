@@ -318,14 +318,10 @@ npm -v    => 10.9.9
 
 ```bash
 
-go version    => Go 1.26.0
-
+go version    => Go 1.18.1
 
 ```
 
+<p align="center"><img width="955" height="93" alt="image" src="https://github.com/user-attachments/assets/b3d6108c-de5b-485a-b4bf-6ef67db5aaeb" /></p>
 
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
+
