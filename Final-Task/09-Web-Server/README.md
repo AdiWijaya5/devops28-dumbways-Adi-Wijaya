@@ -8,6 +8,17 @@
 <p><img width="924" height="412" alt="image" src="https://github.com/user-attachments/assets/6b1c0ad3-07fa-40fc-91a9-9ba00fb6a6e0" />
 </p>
 
+daftar record cloudfiere
+
+<p><img width="954" height="597" alt="image" src="https://github.com/user-attachments/assets/0858283c-0aef-4e80-bd1d-cddd25a81203" />
+</p>
+
+<p><img width="960" height="508" alt="image" src="https://github.com/user-attachments/assets/955193bf-eb3f-4c16-b3b5-2ddfa2d67680" />
+</p>
+
+<p><img width="960" height="547" alt="image" src="https://github.com/user-attachments/assets/8794a636-13df-44ce-ae1e-16056e43184a" />
+</p>
+
 ## Create File setup-gateway-ssl.yaml
 
 
