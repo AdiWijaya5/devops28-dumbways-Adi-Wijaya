@@ -1,5 +1,11 @@
 # Private Docker Registry Deployment
 
+**Private Docker Registry** adalah server penyimpanan internal (milik sendiri) yang berfungsi untuk menyimpan, mengelola, dan mendistribusikan *Docker Images* secara mandiri, terpisah dari Docker Hub publik. 
+
+Dalam arsitektur Anda, Registry ini dideploy pada server **gateway** menggunakan skrip otomatisasi Ansible.
+
+---
+
 ##  add variabels to file all 
 
 ```yml 
