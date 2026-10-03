@@ -148,3 +148,9 @@ registry_storage_path: "/var/lib/registry"
   ```
 
 <p><img width="1065" height="973" alt="image" src="https://github.com/user-attachments/assets/662ba370-e210-49eb-a004-a1e457448416" /></p>
+
+
+## 5. Test Search browser
+
+<p align="center"><img width="955" height="578" alt="image" src="https://github.com/user-attachments/assets/d1570a31-59d8-471f-8569-aa942297f585" />
+</p>
