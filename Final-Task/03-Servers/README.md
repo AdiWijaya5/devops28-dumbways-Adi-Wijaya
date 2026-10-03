@@ -37,7 +37,7 @@ ssh_port: 3333
   
   ```
 
-### - Create server.yaml to sad
+### - Create server.yaml 
   ```yaml
 
   ---
