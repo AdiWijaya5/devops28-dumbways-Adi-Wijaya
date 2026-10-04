@@ -22,11 +22,11 @@
   ssh-keygen -t rsa -b 4096 -C "adiwijaya.jy@gmail.com"
   ```
 <p align="center"><img width="960" height="186" alt="image" src="https://github.com/user-attachments/assets/2d546c80-87da-47b5-806a-8709d3469235" /></p>
-<p align="center"><img width="956" height="231" alt="image" src="https://github.com/user-attachments/assets/5728e797-1498-4285-b383-babe44e94f68" /></p>
+<p align="center"><img width="956" height="231" alt="image" src="https://github.com/user-attachments/assets/6bdd2384-c175-4eb4-b4e5-87a7601ca017" /></p>
 
   (Salin/copy seluruh teks yang muncul, biasanya berawalan ```ssh-rsa ...``` atau ```ssh-ed25519 ...``` pindahken ke fail authorized_keys di ~/finaltask-adi/.ssh).
   
-<p align="center"><img width="957" height="361" alt="image" src="https://github.com/user-attachments/assets/ddaf472e-9508-4366-82a0-577b81f1579e" /></p>
+<p align="center"><img width="957" height="361" alt="image" src="https://github.com/user-attachments/assets/4b4824a4-0bc7-45e5-be8d-b0b913c59adf" /></p>
 
 ### - Daftarkan ke GitHub:
   + Buka GitHub di browser.
@@ -36,7 +36,7 @@
   + create name ```finaltask-adi``` lalu Paste isi public key yang sudah disalin tadi ke kolom Key.
   + Klik Add SSH key.
 
-  <p align="center"><img width="1919" height="988" alt="Screenshot 2026-10-02 162149" src="https://github.com/user-attachments/assets/48641ffa-0c7a-4faa-8322-9b3d8d3bdcd7" /></p>
+  <p align="center"><img width="1919" height="990" alt="image" src="https://github.com/user-attachments/assets/62ee16e1-7b9f-436f-83b2-608de9484d61" /></p>
    <p align="center"><img width="1919" height="991" alt="image" src="https://github.com/user-attachments/assets/2b9b63fd-fee1-4d64-ab03-0724b626e800" /></p>
 
 ### 2. Create new repository 
@@ -316,26 +316,5 @@ Memilikin dua branch utama:
 
 <p align="center"><img width="1915" height="691" alt="image" src="https://github.com/user-attachments/assets/2a16b9ff-a55c-414d-8751-77572eacfc7d" /></p>
 
-## 7. Frontend Node.js dan NPM
-
-```bash
-
-node -v   => v22.23.3
-npm -v    => 10.9.9
-
-```
-
-<p align="center"><img width="957" height="123" alt="image" src="https://github.com/user-attachments/assets/04f81307-4800-4dbf-a482-552a3f44859a" />
-</p>
-
-### 6. backend go 
-
-```bash
-
-go version    => Go 1.18.1
-
-```
-
-<p align="center"><img width="955" height="93" alt="image" src="https://github.com/user-attachments/assets/b3d6108c-de5b-485a-b4bf-6ef67db5aaeb" /></p>
 
 
