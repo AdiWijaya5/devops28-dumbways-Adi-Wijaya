@@ -1,4 +1,4 @@
-<img width="957" height="565" alt="image" src="https://github.com/user-attachments/assets/26689852-de85-428a-9702-3b2ee62b937d" />## CICD
+## CICD
 
 ### Penjelasan Teknis: Alur Jenkins CI/CD Pipeline (Staging Environment)
 
@@ -38,7 +38,8 @@ pipeline {
                 echo "Building Docker image : ${iamge_tag}..."
                 sh "docker build -t ${registry}/fe-dumbmerch:${iamge_tag} -f Dockerfile ."
             }
-        }    
+        }
+
 
         stage('Smoke Test') {
             steps {
@@ -69,7 +70,7 @@ pipeline {
                         docker pull ${registry}/fe-dumbmerch:${iamge_tag} && \
                         docker stop fe-dumbmerch-${app_env} || true && \
                         docker rm fe-dumbmerch-${app_env} || true && \
-                        docker run -d --name fe-dumbmerch-${app_env} -p 80:80 ${registry}/fe-dumbmerch:${iamge_tag}"
+                        docker run -d --name fe-dumbmerch-${app_env} -p 3000:3000 ${registry}/fe-dumbmerch:${iamge_tag}"
                     """
                 }
             }
@@ -82,7 +83,6 @@ pipeline {
                 cleanWs()
             }
         }
-}
 
     post {
         success {
@@ -93,6 +93,8 @@ pipeline {
         }
     }
 }
+
+
 
 
 
@@ -190,7 +192,6 @@ pipeline {
                 cleanWs()
             }
         }
-}
 
     post {
         success {
@@ -255,34 +256,14 @@ Mendefinisikan variabel global yang akan digunakan di seluruh tahapan otomatisas
 
 
 
-### add Plugin Stage SonarQube Scanner
 
-<p align="center"><img width="957" height="565" alt="image" src="https://github.com/user-attachments/assets/5a408789-7cc2-478b-931a-fbecc6b6a0f4" />
-</p>
-
-### daftar Tool Scanner-nya
-
-- Klik tombol + Add SonarQube Scanner yang ada di bagian bawah gambar tersebut.
-
-  + Isi Name dengan tulisan SonarQubeScanner (tanpa spasi, persis seperti di Jenkinsfile).
-  + Centang opsi Install automatically.
-  + Pilih versi scanner pada menu dropdown yang muncul.
-  + Klik tombol Save di bagian paling bawah halaman konfigurasi Jenkins.
-
-<p align="center"><img width="957" height="1035" alt="image" src="https://github.com/user-attachments/assets/34f39dae-2d6a-481c-872f-a6146d456d47" />
-</p>
-
-
-<p align="center"><img width="956" height="1040" alt="image" src="https://github.com/user-attachments/assets/d26d5afc-134d-4845-859e-b964e6847c79" />
-</p>
 
 ## jalankan asnible test code servber
 
 <p align="center"><img width="958" height="1014" alt="image" src="https://github.com/user-attachments/assets/52da0b71-6658-4f02-a642-b2627a4be768" /></p>
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
-<p align="center"></p>
+
+
+
 <p align="center"></p>
 <p align="center"></p>
 <p align="center"></p>
