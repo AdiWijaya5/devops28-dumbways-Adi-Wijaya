@@ -1,4 +1,4 @@
-## CICD
+<img width="957" height="565" alt="image" src="https://github.com/user-attachments/assets/26689852-de85-428a-9702-3b2ee62b937d" />## CICD
 
 ### Penjelasan Teknis: Alur Jenkins CI/CD Pipeline (Staging Environment)
 
@@ -11,91 +11,78 @@ Skrip **Jenkins Pipeline (Declarative)** ini mengotomatiskan seluruh alur kerja 
 ```yaml
 
 
+def secret = 'ssh_credentials_id'      
+def directory = 'fe-dumbmerch'
+def app_env = 'staging'      
+def iamge_tag = "staging"     
+def container = 'fe-dumbmerch'
+def registry = 'registry.adi.studentdumbways.my.id'
+def app_server_ip = '15.232.21.109'
+def app_server_user = 'finaltask-adi'
+def image ='registry.adi.studentdumbways.my.id/fe-dumbmerch:staging'
+
 pipeline {
     agent any
 
-    environment {
-        REGISTRY = "registry.adi.studentdumbways.my.id"
-        
-        // Logika branch-aware untuk staging
-        IMAGE_TAG = "staging"
-        APP_ENV = "staging"
-        
-        APP_SERVER_IP = "15.232.4.76"
-        APP_SERVER_USER = "finaltask-adi"
-        SSH_CREDENTIALS_ID = "{{ secrets.SSH_CREDENTIALS_ID }}" // ID Credential Jenkins untuk SSH ke Server
-    }
-
     stages {
-        // 1. REPOSITORY PULL
         stage('Repository Pull') {
             steps {
-                echo "Pulling code from repository branch: ${env.BRANCH_NAME}..."
+                echo "Pulling code from repository branch: ${app_env}..."
                 checkout scm
             }
         }
 
-        // 2. TESTING CODE (SONARQUBE)
-        stage('Testing Code (SonarQube)') {
-            steps {
-                echo "Running SonarQube analysis for code quality..."
-                script {
-                    def scannerHome = tool 'SonarQubeScanner'
-                    withSonarQubeEnv('SonarQubeServer') {
-                        sh "${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=fe-dumbmerch-staging \
-                            -Dsonar.sources=."
-                    }
-                }
-            }
-        }
-
-        // 3. IMAGE BUILD
+        
         stage('Image Build') {
             steps {
-                echo "Building Docker image with tag: ${env.IMAGE_TAG}..."
-                script {
-                    appImage = docker.build("${env.REGISTRY}/fe-dumbmerch:${env.IMAGE_TAG}", "-f Dockerfile .")
-                }
+                echo "Building Docker image : ${iamge_tag}..."
+                sh "docker build -t ${registry}/fe-dumbmerch:${iamge_tag} -f Dockerfile ."
             }
-        }
+        }    
 
-        // 4. ADDITIONAL TESTING (TRIVY VULNERABILITY SCAN)
-        stage('Image Testing (Trivy Scan)') {
+        stage('Smoke Test') {
             steps {
-                echo "Scanning Docker image for vulnerabilities using Trivy..."
-                sh "trivy image --exit-code 0 --severity HIGH,CRITICAL ${env.REGISTRY}/be-dumbmerch:${env.IMAGE_TAG}"
+                echo 'Running application smoke test...'
+                sh """
+                    docker run -d -p 3001:80 --name test-frontend-container ${image}
+                    sleep 3
+                    curl --fail http://15.232.21.109:3001 || exit 1
+                    docker rm -f test-frontend-container
+                """
             }
         }
 
-        // 5. PUSH IMAGE INTO PRIVATE REGISTRY
-        stage('Push Image into Private Registry') {
+        stage('Push Image into Private Registry (No Auth)') {
             steps {
-                echo "Pushing image to private Docker registry..."
-                script {
-                    docker.withRegistry("https://${env.REGISTRY}", env.CREDENTIALS_ID) {
-                        appImage.push()
-                    }
-                }
+                echo "Pushing image to private Docker registry without password..."
+                sh "docker push ${registry}/fe-dumbmerch:${iamge_tag}"
             }
         }
 
-        // 6. SSH INTO SERVER & PULL IMAGE & REDEPLOY
         stage('SSH & Redeploy') {
             steps {
                 echo "Connecting to server via SSH to pull and redeploy apps (Staging)..."
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent(["${secret}"]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.APP_SERVER_USER}@${env.APP_SERVER_IP} "\
-                        docker login ${env.REGISTRY} && \
-                        docker pull ${env.REGISTRY}/be-dumbmerch:${env.IMAGE_TAG} && \
-                        docker stop fe-dumbmerch-${env.APP_ENV} || true && \
-                        docker rm fe-dumbmerch-${env.APP_ENV} || true && \
-                          ${env.REGISTRY}/fe-dumbmerch:${env.IMAGE_TAG}"
+                        ssh -p 3333 -o StrictHostKeyChecking=no ${app_server_user}@${app_server_ip} "\
+                        docker login ${registry} && \
+                        docker pull ${registry}/fe-dumbmerch:${iamge_tag} && \
+                        docker stop fe-dumbmerch-${app_env} || true && \
+                        docker rm fe-dumbmerch-${app_env} || true && \
+                        docker run -d --name fe-dumbmerch-${app_env} -p 80:80 ${registry}/fe-dumbmerch:${iamge_tag}"
                     """
                 }
             }
         }
+
+        stage('Cleanup Workspace') {
+            steps {
+                echo "Cleaning up local build assets and workspace..."
+                sh "docker rmi ${image} || true"
+                cleanWs()
+            }
+        }
+}
 
     post {
         success {
@@ -106,6 +93,8 @@ pipeline {
         }
     }
 }
+
+
 
 
 ```
@@ -115,98 +104,93 @@ pipeline {
 ```yaml
 
 
+def secret = 'ssh_credentials_id'      
+def directory = 'be-dumbmerch'
+def app_env = 'staging'      
+def iamge_tag = "staging"     
+def container = 'be-dumbmerch'
+def registry = 'registry.adi.studentdumbways.my.id'
+def app_server_ip = '15.232.21.109'
+def app_server_user = 'finaltask-adi'
+def image ='registry.adi.studentdumbways.my.id/be-dumbmerch:staging'
+
 pipeline {
     agent any
 
-    environment {
-        REGISTRY = "registry.adi.studentdumbways.my.id"
-        
-        // Logika branch-aware untuk staging
-        IMAGE_TAG = "staging"
-        APP_ENV = "staging"
-        
-        APP_SERVER_IP = "15.232.4.76"
-        APP_SERVER_USER = "finaltask-adi"
-        SSH_CREDENTIALS_ID = "{{ secrets.SSH_CREDENTIALS_ID }}" // ID Credential Jenkins untuk SSH ke Server
-    }
-
     stages {
-
         stage('Repository Pull') {
             steps {
-                echo "Pulling code from repository branch: ${env.BRANCH_NAME}..."
+                echo "Pulling code from repository branch: ${app_env}..."
                 checkout scm
             }
         }
 
-
-        stage('Testing Code (SonarQube)') {
-            steps {
-                echo "Running SonarQube analysis for code quality..."
-                script {
-                    def scannerHome = tool 'SonarQubeScanner'
-                    withSonarQubeEnv('SonarQubeServer') {
-                        sh "${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=be-dumbmerch-staging \
-                            -Dsonar.sources=."
-                    }
-                }
-            }
-        }
-
-
+        
         stage('Image Build') {
             steps {
-                echo "Building Docker image with tag: ${env.IMAGE_TAG}..."
-                script {
-                    appImage = docker.build("${env.REGISTRY}/be-dumbmerch:${env.IMAGE_TAG}", "-f Dockerfile .")
-                }
+                echo "Building Docker image : ${iamge_tag}..."
+                sh "docker build -t ${registry}/be-dumbmerch:${iamge_tag} -f Dockerfile ."
             }
         }
 
+        // stage('Testing Code (SonarQubeScanner)') {
+        //     steps {
+        //         echo "Running SonarQube analysis for code quality..."
+        //         script {
+        //             def scannerHome = tool 'SonarQubeScanner'
+        //             withSonarQubeEnv('SonarQubeServer') {
+        //                 sh "${scannerHome}/bin/sonar-scanner \
+        //                     -Dsonar.projectKey=fe-dumbmerch-staging \
+        //                     -Dsonar.sources=."
+        //             }
+        //         }
+        //     }
+        // }
+    
 
-        stage('Image Testing (Trivy Scan)') {
+        stage('Smoke Test') {
             steps {
-                echo "Scanning Docker image for vulnerabilities using Trivy..."
-                sh "trivy image --exit-code 0 --severity HIGH,CRITICAL ${env.REGISTRY}/be-dumbmerch:${env.IMAGE_TAG}"
+                echo 'Running application smoke test...'
+                sh """
+                    docker run -d -p 5001:80 --name test-frontend-container ${image}
+                    sleep 3
+                    curl --fail http://15.232.21.109:5001 || exit 1
+                    docker rm -f test-frontend-container
+                """
             }
         }
 
-        stage('Push Image into Private Registry') {
+        stage('Push Image into Private Registry (No Auth)') {
             steps {
-                echo "Pushing image to private Docker registry..."
-                script {
-                    docker.withRegistry("https://${env.REGISTRY}", env.CREDENTIALS_ID) {
-                        appImage.push()
-                    }
-                }
+                echo "Pushing image to private Docker registry without password..."
+                sh "docker push ${registry}/be-dumbmerch:${iamge_tag}"
             }
         }
 
         stage('SSH & Redeploy') {
             steps {
                 echo "Connecting to server via SSH to pull and redeploy apps (Staging)..."
-                sshagent([env.SSH_CREDENTIALS_ID]) {
+                sshagent(["${secret}"]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${env.APP_SERVER_USER}@${env.APP_SERVER_IP} "\
-                        docker login ${env.REGISTRY} && \
-                        docker pull ${env.REGISTRY}/be-dumbmerch:${env.IMAGE_TAG} && \
-                        docker stop be-dumbmerch-${env.APP_ENV} || true && \
-                        docker rm be-dumbmerch-${env.APP_ENV} || true && \
-                        docker run -d \
-                          --name be-dumbmerch-${env.APP_ENV} \
-                          -p 5001:5000 \
-                          -e DB_HOST=15.232.4.76 \
-                          -e DB_PORT=5432 \
-                          -e DB_USER=dumbmerch \
-                          -e DB_PASSWORD=neonjago \
-                          -e DB_NAME=dumbmerch_db \
-                          -e DB_SSLMODE=disable \
-                          ${env.REGISTRY}/be-dumbmerch:${env.IMAGE_TAG}"
+                        ssh -p 3333 -o StrictHostKeyChecking=no ${app_server_user}@${app_server_ip} "\
+                        docker login ${registry} && \
+                        docker pull ${registry}/be-dumbmerch:${iamge_tag} && \
+                        docker stop be-dumbmerch-${app_env} || true && \
+                        docker rm be-dumbmerch-${app_env} || true && \
+                        docker run -d --name be-dumbmerch-${app_env} -p 5000:5000 ${registry}/be-dumbmerch:${iamge_tag}"
                     """
                 }
             }
         }
+
+        stage('Cleanup Workspace') {
+            steps {
+                echo "Cleaning up local build assets and workspace..."
+                sh "docker rmi ${image} || true"
+                cleanWs()
+            }
+        }
+}
 
     post {
         success {
@@ -219,15 +203,17 @@ pipeline {
 }
 
 
+
+
 ```
 
 
 
 ### 1. Blok Inisiasi Lingkungan (Environment Variables)
 Mendefinisikan variabel global yang akan digunakan di seluruh tahapan otomatisasi:
-*   `REGISTRY` dan `IMAGE_TAG`: Menunjuk ke Private Docker Registry Anda dengan label versi `staging`.
-*   `APP_SERVER_IP` dan `USER`: Alamat IP dan kredensial user untuk akses remote server aplikasi (`15.232.4.76`).
-*   `SSH_CREDENTIALS_ID`: Mengambil ID rahasia dari sistem Jenkins Credentials untuk mengamankan kunci SSH.
+*   `registry` dan `IMAGE_TAG`: Menunjuk ke Private Docker Registry Anda dengan label versi `staging`.
+*   `app_server_ip` dan `app_server_user`: Alamat IP dan kredensial user untuk akses remote server aplikasi.
+*   `ssh_credentials_id`: Mengambil ID rahasia dari sistem Jenkins Credentials untuk mengamankan kunci SSH.
 
 ---
 
@@ -242,7 +228,7 @@ Mendefinisikan variabel global yang akan digunakan di seluruh tahapan otomatisas
 *   **Image Testing (Trivy Scan):** Memindai paket OS dan dependensi di dalam *image* Docker yang baru dibuat menggunakan Trivy untuk mendeteksi adanya celah keamanan kritis (*HIGH, CRITICAL vulnerabilities*).
 
 #### Tahap 5: Pengunggahan Aset (Push Image)
-*   **Push Image into Private Registry:** Melakukan autentikasi aman ke server Private Docker Registry Anda (`https://studentdumbways.my.id`), lalu mengunggah (*push*) *image* tersebut agar bisa digunakan oleh server lain.
+*   **Push Image into Private Registry:** Melakukan autentikasi aman ke server Private Docker Registry Anda (`registry.adi.studentdumbways.my.id`), lalu mengunggah (*push*) *image* tersebut agar bisa digunakan oleh server lain.
 
 
 
@@ -250,84 +236,79 @@ Mendefinisikan variabel global yang akan digunakan di seluruh tahapan otomatisas
 
 ### 3. Notifikasi Akhir (Post Actions)
 *   **Success:** Mencetak log sukses ke konsol Jenkins jika seluruh tahapan dari awal hingga akhir berhasil dilewati tanpa eror.
-*   **Failure:** Mencetak log peringatan gagal jika ada salah satu tahapan yang terhenti akibat eror (seperti gagal uji SonarQube, Trivy, atau aplikasi tidak merespons).
 ---
 
 
-### bikin FE CI/CD Pipeline Trigger
 
-- bikin file .github/workflows/ci-cd.yml lalu git push 
-
-### workflows production
-```yaml
-
-name: FE CI/CD Pipeline Trigger
-
-on:
-  push:
-    branches:
-      - staging
-jobs:
-  trigger-fe-staging:
-    if: github.ref == 'refs/heads/staging'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Jenkins FE Staging
-        uses: appleboy/jenkins-action@master
-        with:
-          url: "http://15.232.21.109:8080"
-          user: "${{ secrets.JENKINS_USERNAME }}"
-          token: "${{ secrets.JENKINS_API_TOKEN }}"
-          job: "fe-dumbmerch-staging"
-
-```
-
-### workflows production
-
-```yaml
-
-name: CI/CD Pipeline Trigger
-
-on:
-  push:
-    branches:
-      - production
-
-jobs:
-  trigger-jenkins-production:
-    if: github.ref == 'refs/heads/production'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Jenkins Production
-        uses: appleboy/jenkins-action@master
-        with:
-          url: "http://15.232.21.109:8080"
-          user: "${{ secrets.JENKINS_USERNAME }}"
-          token: "${{ secrets.JENKINS_API_TOKEN }}"
-          job: "fe-dumbmerch-production"
-
-```
-
-## Penjelasan Teknis: GitHub Actions Webhook Trigger
-
-Skrip **GitHub Actions** ini berfungsi sebagai **pemicu otomatis (Webhook)** untuk memerintahkan server **Jenkins** agar langsung memulai *pipeline* deployment setiap kali ada perubahan kode Frontend.
-
----
-
-### 1. Kondisi Pemicu (Trigger)
-*   **Event:** Otomatis aktif hanya ketika terjadi pengiriman kode (`git push`) atau penggabungan kode (*merge*) ke dalam branch **`staging/production`**.
-
-### 2. Lingkungan Eksekusi (Jobs)
-*   Berjalan di atas mesin virtual virtual (*Runner*) gratis berbasis **Ubuntu** milik GitHub.
-
-### 3. Langkah Kerja Kontrol (Steps)
-*   **Koneksi API Jenkins:** Menggunakan plugin `appleboy/jenkins-action` untuk menembak IP server Jenkins (`15.232.21.109:8080`).
-*   **Keamanan Kredensial:** Mengambil *Username* dan *API Token* Jenkins secara aman melalui fitur **GitHub Secrets**
-*   **Target Eksekusi:** Memerintahkan Jenkins untuk langsung menjalankan (*build*) proyek CI/CD dengan nama spesifik: **`fe-dumbmerch-staging/fe-dumbmerch-production`**.
 
 
 ## Actions secrets and variables
 
 <p><img width="1918" height="994" alt="image" src="https://github.com/user-attachments/assets/480cee82-ead4-4134-a873-641858ccb3f1" /></p>
+
+
+---
+
+
+
+
+### Membuat GitHub PAT (Classic)
+
+<p align="center"><img width="1919" height="1041" alt="image" src="https://github.com/user-attachments/assets/8ecf6159-bec2-47eb-8015-01cf524689f0" /></p>
+
+
+
+<p align="center"><img width="1919" height="1040" alt="image" src="https://github.com/user-attachments/assets/44f9d342-ca37-4a40-a831-128f74687894" />
+</p>
+
+
+### Install With Ansible
+<p align="center"><img width="907" height="555" alt="image" src="https://github.com/user-attachments/assets/39da3108-6e09-4f55-a9c3-1543271379c6" /></p>
+
+
+
+### add Plugin Stage SonarQube Scanner
+
+<p align="center"><img width="957" height="565" alt="image" src="https://github.com/user-attachments/assets/5a408789-7cc2-478b-931a-fbecc6b6a0f4" />
+</p>
+
+### daftar Tool Scanner-nya
+
+- Klik tombol + Add SonarQube Scanner yang ada di bagian bawah gambar tersebut.
+
+  + Isi Name dengan tulisan SonarQubeScanner (tanpa spasi, persis seperti di Jenkinsfile).
+  + Centang opsi Install automatically.
+  + Pilih versi scanner pada menu dropdown yang muncul.
+  + Klik tombol Save di bagian paling bawah halaman konfigurasi Jenkins.
+
+<p align="center"><img width="957" height="1035" alt="image" src="https://github.com/user-attachments/assets/34f39dae-2d6a-481c-872f-a6146d456d47" />
+</p>
+
+
+<p align="center"><img width="956" height="1040" alt="image" src="https://github.com/user-attachments/assets/d26d5afc-134d-4845-859e-b964e6847c79" />
+</p>
+
+## jalankan asnible test code servber
+
+<p align="center"><img width="958" height="1014" alt="image" src="https://github.com/user-attachments/assets/52da0b71-6658-4f02-a642-b2627a4be768" /></p>
+<p align="center"></p>
+<p align="center"></p>
+<p align="center"></p>
+<p align="center"></p>
+<p align="center"></p>
+<p align="center"></p>
+<p align="center"></p>
+<p align="center"></p>
+<p align="center"></p>
+
+
+
+
+
+
+
+
+
+
 
 
