@@ -240,18 +240,6 @@ Mendefinisikan variabel global yang akan digunakan di seluruh tahapan otomatisas
 
 
 
-
-
-## Actions secrets and variables
-
-<p><img width="1918" height="994" alt="image" src="https://github.com/user-attachments/assets/480cee82-ead4-4134-a873-641858ccb3f1" /></p>
-
-
----
-
-
-
-
 ### Membuat GitHub PAT (Classic)
 
 <p align="center"><img width="1919" height="1041" alt="image" src="https://github.com/user-attachments/assets/8ecf6159-bec2-47eb-8015-01cf524689f0" /></p>
