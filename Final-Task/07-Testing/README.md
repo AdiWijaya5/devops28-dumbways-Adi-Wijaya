@@ -38,3 +38,112 @@
        
 
 <p align="center"><img width="1671" height="769" alt="image" src="https://github.com/user-attachments/assets/7362f899-3600-4a58-8ca7-7dfaffe11c0d" /></p>
+
+
+### CI/CD Pipeline fe staging
+
+```yaml
+
+
+def secret = 'ssh_credentials_id'      
+def app_env = 'staging'      
+def iamge_tag = "staging"     
+def container = 'be-dumbmerch'
+def registry = 'registry.adi.studentdumbways.my.id'
+def app_server_ip = '15.232.21.109'
+def app_server_user = 'finaltask-adi'
+def image ='registry.adi.studentdumbways.my.id/fe-dumbmerch:staging'
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Repository Pull') {
+            steps {
+                echo "Pulling code from repository branch: ${app_env}..."
+                checkout scm
+            }
+        }
+
+        
+        stage('Image Build') {
+            steps {
+                echo "Building Docker image : ${iamge_tag}..."
+                sh "docker build -t ${registry}/fe-dumbmerch:${iamge_tag} -f Dockerfile ."
+            }
+        }
+
+
+
+         stage('Testing Code (SonarQubeScanner)') {
+             steps {
+                 echo "Running SonarQube analysis for code quality..."
+                 script {
+                     def scannerHome = tool 'SonarQubeScanner'
+                     withSonarQubeEnv('SonarQubeServer') {
+                         sh "${scannerHome}/bin/sonar-scanner \
+                             -Dsonar.projectKey=fe-dumbmerch-staging \
+                             -Dsonar.sources=."
+                     }
+                 }
+             }
+         }
+    
+
+        stage('Smoke Test') {
+            steps {
+                echo 'Running application smoke test...'
+                sh """
+                    docker run -d -p 5001:5000 --name test-frontend-container ${image}
+                    sleep 3
+                    curl --fail http://15.232.21.109:5001 || exit 1
+                    docker rm -f test-frontend-container
+                """
+            }
+        }
+
+        stage('Push Image into Private Registry (No Auth)') {
+            steps {
+                echo "Pushing image to private Docker registry without password..."
+                sh "docker push ${registry}/fe-dumbmerch:${iamge_tag}"
+            }
+        }
+
+        stage('SSH & Redeploy') {
+            steps {
+                echo "Connecting to server via SSH to pull and redeploy apps (Staging)..."
+                sshagent(["${secret}"]) {
+                    sh """
+                        ssh -p 3333 -o StrictHostKeyChecking=no ${app_server_user}@${app_server_ip} "\
+                        docker login ${registry} && \
+                        docker pull ${registry}/fe-dumbmerch:${iamge_tag} && \
+                        docker stop fe-dumbmerch-${app_env} || true && \
+                        docker rm -f be-dumbmerch-${app_env} || true && \
+                        docker run -d --name fe-dumbmerch-${app_env} -p 5000:5000 ${registry}/be-dumbmerch:${iamge_tag}"
+                    """
+                }
+            }
+        }
+
+        stage('Cleanup Workspace') {
+            steps {
+                echo "Cleaning up local build assets and workspace..."
+                sh "docker rmi ${image} || true"
+                cleanWs()
+            }
+        }
+
+    post {
+        success {
+            echo "Staging CI/CD Pipeline successfully finished all stages!"
+        }
+        failure {
+            echo "Staging CI/CD Pipeline failed. Please check logs on each stage."
+        }
+    }
+}
+
+
+
+
+```
