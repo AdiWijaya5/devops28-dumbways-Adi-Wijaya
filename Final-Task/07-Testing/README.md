@@ -1,3 +1,7 @@
+### Install With Ansible
+
+<p align="center"><img width="958" height="1014" alt="image" src="https://github.com/user-attachments/assets/52da0b71-6658-4f02-a642-b2627a4be768" /></p>
+
 
 ### add Plugin Stage SonarQube Scanner
 
