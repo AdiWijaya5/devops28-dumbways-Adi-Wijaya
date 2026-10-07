@@ -70,7 +70,7 @@ pipeline {
                         docker pull ${registry}/fe-dumbmerch:${iamge_tag} && \
                         docker stop fe-dumbmerch-${app_env} || true && \
                         docker rm fe-dumbmerch-${app_env} || true && \
-                        docker run -d --name fe-dumbmerch-${app_env} -p 3000:3000 ${registry}/fe-dumbmerch:${iamge_tag}"
+                        docker run -d --name fe-dumbmerch-${app_env} -p 3000:80 ${registry}/fe-dumbmerch:${iamge_tag}"
                     """
                 }
             }
@@ -250,18 +250,60 @@ Mendefinisikan variabel global yang akan digunakan di seluruh tahapan otomatisas
 <p align="center"><img width="1919" height="1040" alt="image" src="https://github.com/user-attachments/assets/44f9d342-ca37-4a40-a831-128f74687894" />
 </p>
 
+### - Tambahkan Credentials Globlal untuk Target_IP
 
-### Install With Ansible
-<p align="center"><img width="907" height="555" alt="image" src="https://github.com/user-attachments/assets/39da3108-6e09-4f55-a9c3-1543271379c6" /></p>
-
-
+<p align="center"><img width="1919" height="1038" alt="image" src="https://github.com/user-attachments/assets/b704587d-1c68-4c52-b8bb-2f677caa9d37" /></p>
 
 
+### - Tambahkan Credentials Globlal untuk Target_User
 
-## jalankan asnible test code servber
+<p align="center"><img width="1919" height="1038" alt="image" src="https://github.com/user-attachments/assets/006c1386-2f8f-4bfd-872c-b2decab33a5c" /></p>
 
-<p align="center"><img width="958" height="1014" alt="image" src="https://github.com/user-attachments/assets/52da0b71-6658-4f02-a642-b2627a4be768" /></p>
 
+
+
+
+### create CICD job deploy staging
+
+<p align="center"><img width="1919" height="1041" alt="image" src="https://github.com/user-attachments/assets/f9dc0790-c8a1-47b6-a20a-9fcf5424283b" />
+</p>
+
+<p align="center"><img width="1914" height="1045" alt="image" src="https://github.com/user-attachments/assets/97dd19f9-2fe0-4596-89a8-51b37a9ede85" />
+</p>
+
+
+<p align="center"><img width="1912" height="1053" alt="image" src="https://github.com/user-attachments/assets/84816782-7247-424c-8ff3-9a296a62cd64" />
+</p>
+
+<p align="center"><img width="1919" height="1044" alt="image" src="https://github.com/user-attachments/assets/fb1daa4d-90d4-43c5-9de6-3c948f2db270" /></p>
+
+### Job 1 Repository Pull Pulling code from repository branch: staging
+
+<p align="center"><img width="1536" height="687" alt="image" src="https://github.com/user-attachments/assets/e5a8281c-8bff-49c4-8e34-6b6d856edb8f" /></p>
+
+### Job 2 Image build on top Docker use Dockerfile
+
+<p align="center"><img width="1533" height="650" alt="image" src="https://github.com/user-attachments/assets/c56fb922-ce0d-4ba5-894c-5c166adb6413" /></p>
+
+### Job 3 Testing Code With Smoke Test
+
+<p align="center"><img width="1538" height="551" alt="image" src="https://github.com/user-attachments/assets/69cd3f2c-8a5b-4474-ac3e-338d6646eac6" /></p>
+
+### Job 4 Push Image into Docker Registry Private(No Auth)
+
+<p align="center"><img width="1537" height="643" alt="image" src="https://github.com/user-attachments/assets/0b0ee7e8-36e4-4760-8484-f8471e9b33ca" /></p>
+
+### Job 5 Connecting to Server via SSH to pull and Redeploy: staging
+
+<p align="center"><img width="1551" height="525" alt="image" src="https://github.com/user-attachments/assets/0ac68c25-1d4c-40c7-9ec8-47a05112e696" /></p>
+
+### Job 6 Cleanup Workspace
+
+<p align="center"><img width="1548" height="517" alt="image" src="https://github.com/user-attachments/assets/1bb797f3-07c7-4264-bf1e-e6115559182b" /></p>
+
+### Job 6 Notif Staging Success
+
+<p align="center"><img width="1547" height="360" alt="image" src="https://github.com/user-attachments/assets/39c67ab2-7635-4d26-94e0-34ff022beaf2" /></p>
 
 
 <p align="center"></p>
@@ -269,9 +311,11 @@ Mendefinisikan variabel global yang akan digunakan di seluruh tahapan otomatisas
 <p align="center"></p>
 <p align="center"></p>
 <p align="center"></p>
-
-
-
+<p align="center"></p>
+<p align="center"></p>
+<p align="center"></p>
+<p align="center"></p>
+<p align="center"></p>
 
 
 
