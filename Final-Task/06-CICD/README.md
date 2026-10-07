@@ -12,7 +12,6 @@ Skrip **Jenkins Pipeline (Declarative)** ini mengotomatiskan seluruh alur kerja 
 
 
 def secret = 'ssh_credentials_id'      
-def directory = 'fe-dumbmerch'
 def app_env = 'staging'      
 def iamge_tag = "staging"     
 def container = 'fe-dumbmerch'
@@ -107,7 +106,6 @@ pipeline {
 
 
 def secret = 'ssh_credentials_id'      
-def directory = 'be-dumbmerch'
 def app_env = 'staging'      
 def iamge_tag = "staging"     
 def container = 'be-dumbmerch'
@@ -135,26 +133,31 @@ pipeline {
             }
         }
 
-        // stage('Testing Code (SonarQubeScanner)') {
-        //     steps {
-        //         echo "Running SonarQube analysis for code quality..."
-        //         script {
-        //             def scannerHome = tool 'SonarQubeScanner'
-        //             withSonarQubeEnv('SonarQubeServer') {
-        //                 sh "${scannerHome}/bin/sonar-scanner \
-        //                     -Dsonar.projectKey=fe-dumbmerch-staging \
-        //                     -Dsonar.sources=."
-        //             }
-        //         }
-        //     }
-        // }
-    
 
+
+        
+        stage('Smoke Test API') {
+            steps {
+                sh """
+                    docker rm -f test-backend-container || true
+                    docker run -d -p 5001:5000 --name test-backend-container ${image}
+                    sleep 5
+                    
+                    # Cek apakah container berjalan
+                    [ "\$(docker inspect -f '{{\$.State.Running}}' test-backend-container)" = "true" ] || { docker logs test-backend-container; docker rm -f test-backend-container; exit 1; }
+                    
+                    # Bersihkan
+                    docker rm -f test-backend-container
+                    echo "Smoke test passed!"
+                """
+            }
+        }
+    
         stage('Smoke Test') {
             steps {
                 echo 'Running application smoke test...'
                 sh """
-                    docker run -d -p 5001:80 --name test-frontend-container ${image}
+                    docker run -d -p 5001:5000 --name test-frontend-container ${image}
                     sleep 3
                     curl --fail http://15.232.21.109:5001 || exit 1
                     docker rm -f test-frontend-container
@@ -263,7 +266,7 @@ Mendefinisikan variabel global yang akan digunakan di seluruh tahapan otomatisas
 
 
 
-### create CICD job deploy staging
+### create CICD job deploy frontend:staging
 
 <p align="center"><img width="1919" height="1041" alt="image" src="https://github.com/user-attachments/assets/f9dc0790-c8a1-47b6-a20a-9fcf5424283b" />
 </p>
@@ -275,7 +278,7 @@ Mendefinisikan variabel global yang akan digunakan di seluruh tahapan otomatisas
 <p align="center"><img width="1912" height="1053" alt="image" src="https://github.com/user-attachments/assets/84816782-7247-424c-8ff3-9a296a62cd64" />
 </p>
 
-<p align="center"><img width="1919" height="1044" alt="image" src="https://github.com/user-attachments/assets/fb1daa4d-90d4-43c5-9de6-3c948f2db270" /></p>
+<p align="center"><img width="1919" height="790" alt="image" src="https://github.com/user-attachments/assets/eba67e96-0d23-453f-93b0-5d698f1fd6a7" /></p>
 
 ### Job 1 Repository Pull Pulling code from repository branch: staging
 
@@ -306,7 +309,12 @@ Mendefinisikan variabel global yang akan digunakan di seluruh tahapan otomatisas
 <p align="center"><img width="1547" height="360" alt="image" src="https://github.com/user-attachments/assets/39c67ab2-7635-4d26-94e0-34ff022beaf2" /></p>
 
 
-<p align="center"></p>
+
+### create CICD job deploy bacend:staging
+
+<p align="center"><img width="1919" height="1032" alt="image" src="https://github.com/user-attachments/assets/7beda121-0552-4983-8987-00094b302d1e" /></p>
+
+
 <p align="center"></p>
 <p align="center"></p>
 <p align="center"></p>
