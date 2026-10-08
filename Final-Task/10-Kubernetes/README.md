@@ -201,7 +201,11 @@ kubectl create namespace production
 
 <p align="center"><img width="1154" height="260" alt="image" src="https://github.com/user-attachments/assets/ea3e889f-83cc-4b71-b6f3-20fae898c60a" />
 </p>
-<p align="center"></p>
+
+
+
+<p align="center"><img width="1919" height="475" alt="image" src="https://github.com/user-attachments/assets/54a8e189-417c-4f72-a409-12702e36cc56" />
+</p>
 <p align="center"></p>
 <p align="center"></p>
 <p align="center"></p>
