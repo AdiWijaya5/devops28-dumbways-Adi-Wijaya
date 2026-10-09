@@ -1,4 +1,6 @@
-## Testing App
+# Testing App
+
+## Dokumentasi Jenkins pipeline untuk proses analisis kode, testing, dan deployment otomatis.
 
 ### Install SonarQube Scanner With Ansible
 
@@ -195,7 +197,7 @@ pipeline {
                         docker pull ${registry}/fe-dumbmerch:${iamge_tag} && \
                         docker stop fe-dumbmerch-${app_env} || true && \
                         docker rm -f fe-dumbmerch-${app_env} || true && \
-                        docker run -d --name fe-dumbmerch-${app_env} -p 5000:5000 ${registry}/fe-dumbmerch:${iamge_tag}"
+                        docker run -d --name fe-dumbmerch-${app_env} -p 3000:80 ${registry}/fe-dumbmerch:${iamge_tag}"
                     """
                 }
             }
@@ -314,7 +316,41 @@ pipeline {
 
 
 ```
+## Alur Pipeline 
 
+### Repository Pull (`Repository Pull`)
+* **Aksi:** `checkout scm`
+* **Fungsi:** Mengambil source code terbaru dari repository Git sesuai branch environment yang aktif.
+
+### SonarQube Analysis (`SonarQube Analysis`)
+* **Aksi:** Menjalankan `sonar-scanner` menggunakan tool terdaftar di Jenkins dengan konfigurasi server `SonarQubeServer`.
+* **Fungsi:** Memindai kualitas kode (code smell, security vulnerability, bugs) pada project key `fe-dumbmerch | be-dumbmerch ` berdasarkan direktori root (`.`).
+
+### Pull & Test Existing Docker Image (`Pull & Test Existing Docker Image`)
+* **Aksi:** 
+  1. Mengunduh (`docker pull`) image yang sudah ada di registry.
+  2. Menjalankan container uji coba sementara di port `3001 | 5001` (`--name test-frontend-container | --name test-backend-container `).
+  3. Melakukan tes kesehatan menggunakan perintah `curl` ke `http://localhost:3001 | /http://localhost:5001`.
+  4. Menghapus container uji setelah selesai.
+* **Fungsi:** Memastikan image di registry valid dan siap sebelum dideploy ke server production/staging.
+
+### Deploy (`Deploy`)
+* **Aksi:** Menggunakan plugin `sshagent` untuk meremote server staging via SSH (port `3333`). Perintah yang dieksekusi di server:
+  1. Login ke private Docker registry.
+  2. Pull image terbaru (`${registry}/fe-dumbmerch:${iamge_tag} | ${registry}/be-dumbmerch:${iamge_tag}`).
+  3. Stop dan hapus container lama yang sedang berjalan (`fe-dumbmerch-staging | be-dumbmerch-staging`).
+  4. Jalankan container baru di port `3000:80 | 5000:5000`.
+
+### Test Running App with Wget Spider (`Test Running App with Wget Spider`)
+* **Aksi:** `wget --spider --no-verbose ${app_url} || true`
+* **Fungsi:** Melakukan *spider check* (menelusuri link/URL aplikasi) secara senyap untuk memastikan aplikasi di server benar-benar hidup dan merespons dengan baik.
+
+---
+
+## Penanganan Status (`Post Actions`)
+
+* **`success`:** Menampilkan log sukses jika seluruh rangkaian *stage* (mulai dari SonarQube, testing lokal, deploy, hingga wget spider) berhasil dilalui.
+* **`failure`:** Memberikan notifikasi error jika ada kegagalan di tengah jalan, sehingga Anda bisa langsung memeriksa console log Jenkins untuk proses *debugging*.
 
 ### - Berhasil CICD Testing fe-dumbmerch 
 
@@ -323,13 +359,13 @@ pipeline {
 ### - Berhasil menjalankan SonarQube Analysi dengan waktu 21s
   + Hasil dari jenkins
     
-<p align="center"><img width="1552" height="292" alt="image" src="https://github.com/user-attachments/assets/ca152978-9ac5-4346-9db1-07b98f702e14" /></p>
+<p align="center"><img width="1555" height="513" alt="image" src="https://github.com/user-attachments/assets/9b886f09-1e12-4d58-8461-d17a1d30e8af" /></p>
 
 ---
 
-### - Berhasil dari Testing application accessibility via domain using Wget Spide
-<p align="center"><img width="1555" height="513" alt="image" src="https://github.com/user-attachments/assets/9b886f09-1e12-4d58-8461-d17a1d30e8af" /></p>
++ Berhasil dari Testing application accessibility via domain using Wget Spide
 
+<p align="center"><img width="1552" height="292" alt="image" src="https://github.com/user-attachments/assets/ca152978-9ac5-4346-9db1-07b98f702e14" /></p>
 
 ### - Berhasil CICD Testing be-dumbmerch 
 
@@ -341,12 +377,31 @@ pipeline {
 <p align="center"><img width="1651" height="674" alt="image" src="https://github.com/user-attachments/assets/7adf4ccb-ca1c-402b-b70f-94e68c3e1c59" /></p>
 
 ---
+
++ Berhasil dari Testing application accessibility via domain using Wget Spide
+
+<img width="1647" height="475" alt="image" src="https://github.com/user-attachments/assets/11cb299c-6e12-416d-ac4b-1f86f0620e24" />
+
+---
+
 + Hasil dari dasboard SonarQube
+
+<p align="center"><img width="1919" height="708" alt="image" src="https://github.com/user-attachments/assets/83b231e1-69a5-42c0-bf40-48973bde69ee" /></p>
+
+----
+
++ Hasil dari dasboard SonarQube fe-dumbmerch 
+  
 <p align="center"><img width="1919" height="836" alt="image" src="https://github.com/user-attachments/assets/d51051a8-05f3-4a60-9e2b-d220897fcce4" /></p>
 
 ---
 
-<p align="center"></p>
++ Hasil dari dasboard SonarQube be-dumbmerch
+  
+<p align="center"><img width="1919" height="1036" alt="image" src="https://github.com/user-attachments/assets/56c3bb9d-2e10-43ac-90be-55d1b75e400a" /></p>
+
+
+### Jenkins Dasboard
 
 ---
 <p align="center"><img width="1919" height="340" alt="image" src="https://github.com/user-attachments/assets/f6e3b830-22b4-434f-9905-b734c0277b04" /></p>
