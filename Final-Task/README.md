@@ -35,10 +35,10 @@ Sistem ini dibagi menjadi tiga server utama agar lebih aman, terstruktur, dan te
 | **[Project-4](./04-Docker-Registry-Private)** | Docker Registry Private  | Selesai |
 | **[Project-5](./05-Deployment-Apps)** | Deployment Apps | Selesai |
 | **[Project-6](./06-CICD)** | CICD  | Selesai |
-| **[Project-7](./07-Testing)** | Testing | On Progres |
-| **[Project-8](./08-Monitoring)** | Monitoring | On Progres |
-| **[Project-9](./09-Web-Server)** | Web Server | 50% Progres |
-| **[Project-10](./10-Kubernetes)** | Kubernetes | On Progres |
+| **[Project-7](./07-Testing)** | Testing | Selesai |
+| **[Project-8](./08-Monitoring)** | Monitoring | Selesai |
+| **[Project-9](./09-Web-Server)** | Web Server | Selesai |
+| **[Project-10](./10-Kubernetes)** | Kubernetes | Selesai |
 
 
 ---
