@@ -139,9 +139,9 @@
 def secret = 'ssh_credentials_id'      
 def app_env = 'staging'      
 def iamge_tag = "staging"
-def registry = 'registry.adi.studentdumbways.my.id'
 def app_server_ip = '15.232.21.109'    
 def app_server_user = 'finaltask-adi'
+def registry = 'registry.adi.studentdumbways.my.id'
 def image ='registry.adi.studentdumbways.my.id/fe-dumbmerch:staging'
 def app_url = 'https://staging.adi.studentdumbways.my.id'
 
