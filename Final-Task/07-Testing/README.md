@@ -104,6 +104,8 @@
 
 ### add Plugin Stage SonarQube Scanner
 
+tambahkan Plugin SonarQube Scanner untuk Memindai Kode Infrastruktur (IaC), Mendeteksi Kebocoran Data serta Otomatisasi Triage AI
+
 <p align="center"><img width="957" height="565" alt="image" src="https://github.com/user-attachments/assets/5a408789-7cc2-478b-931a-fbecc6b6a0f4" />
 </p>
 
@@ -139,8 +141,8 @@
 
 
 def secret = 'ssh_credentials_id'      
-def app_env = 'staging'      
-def iamge_tag = "staging"
+def app_env = 'production'      
+def iamge_tag = "production"
 def app_server_ip = '15.232.21.109'    
 def app_server_user = 'finaltask-adi'
 def registry = 'registry.adi.studentdumbways.my.id'
@@ -232,8 +234,8 @@ pipeline {
 
 
 def secret = 'ssh_credentials_id'      
-def app_env = 'staging'      
-def iamge_tag = "staging"
+def app_env = 'production'      
+def iamge_tag = "production"
 def app_server_ip = '15.232.21.109'    
 def app_server_user = 'finaltask-adi'
 def registry = 'registry.adi.studentdumbways.my.id'
