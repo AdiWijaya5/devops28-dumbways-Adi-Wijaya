@@ -14,10 +14,9 @@ Skrip **Jenkins Pipeline (Declarative)** ini mengotomatiskan seluruh alur kerja 
 def secret = 'ssh_credentials_id'      
 def app_env = 'staging'      
 def iamge_tag = "staging"     
-def container = 'fe-dumbmerch'
-def registry = 'registry.adi.studentdumbways.my.id'
 def app_server_ip = '15.232.21.109'
 def app_server_user = 'finaltask-adi'
+def registry = 'registry.adi.studentdumbways.my.id'
 def image ='registry.adi.studentdumbways.my.id/fe-dumbmerch:staging'
 
 pipeline {
@@ -107,11 +106,10 @@ pipeline {
 
 def secret = 'ssh_credentials_id'      
 def app_env = 'staging'      
-def iamge_tag = "staging"     
-def container = 'be-dumbmerch'
-def registry = 'registry.adi.studentdumbways.my.id'
+def iamge_tag = "staging" 
 def app_server_ip = '15.232.21.109'
 def app_server_user = 'finaltask-adi'
+def registry = 'registry.adi.studentdumbways.my.id'
 def image ='registry.adi.studentdumbways.my.id/be-dumbmerch:staging'
 
 pipeline {
@@ -205,10 +203,9 @@ Berikut adalah variabel global yang digunakan di dalam Jenkinsfile:
 * `secret = 'ssh_credentials_id'` (Credential Jenkins untuk SSH key)
 * `app_env = 'staging'` (Environment target deployment)
 * `image_tag = "staging"` *(Catatan: ada typo kecil pada variabel `iamge_tag` di skrip asli)*
-* `container = 'fe-dumbmerch'` (Nama dasar container aplikasi)
-* `registry = 'registry.adi.studentdumbways.my.id'` (Alamat Private Docker Registry)
 * `app_server_ip = '15.232.21.109'` (Alamat IP Server Staging)
 * `app_server_user = 'finaltask-adi'` (Username SSH Server Staging)
+* `registry = 'registry.adi.studentdumbways.my.id'` (Alamat Private Docker Registry)
 * `image = 'registry.adi.studentdumbways.my.id/fe-dumbmerch:staging'` (Kombinasi lengkap nama image dan tag)
 
 ## Penjelasan Alur Pipeline (Stages)
