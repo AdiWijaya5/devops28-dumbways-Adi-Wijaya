@@ -1,4 +1,4 @@
-**Instalasi docker to ubuntu server aws**
+**Instalasi docker to ubuntu server aws dan CI/CD Concepts**
 
 
 1. pertama lakukan update dan upgarade server
@@ -94,3 +94,229 @@
  24. lalu untuk docker-compose.yaml
      
      <img width="951" height="1036" alt="image" src="https://github.com/user-attachments/assets/1ae8f35f-1805-472a-96e4-633ae777c8b5" />
+
+## CI/CD Tools Github Actions
+
+
+### - Forntend-wayshub
+
+```yaml
+
+name: CI/CD Frontend to AWS Server
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker Image from Dockerfile
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/wayshub-frontend:latest .
+
+      - name: Send Discord Notification (Build Success)
+        if: success()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: info
+          details: "Frontend Sukses: Docker image frontend berhasil di-build dari Dockerfile."
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/wayshub-frontend:latest
+
+      - name: Send Discord Notification (Push Success)
+        if: success()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: info
+          details: "Frontend Sukses: Docker image frontend berhasil di-push ke Docker Hub."
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Cleanup Local Runner Images
+        if: always()
+        run: |
+          docker rmi ${{ secrets.DOCKER_USERNAME }}/wayshub-frontend:latest || true
+          docker image prune -f
+
+      - name: Deploy to AWS EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/adi/docker/wayshub-frontend
+            git pull origin main
+            docker compose pull
+            docker compose up -d --force-recreate
+            docker system prune -f
+
+      - name: Send Discord Notification (Deployment Success)
+        if: success()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: info
+          details: "Frontend Deployment Sukses! Aplikasi frontend wayshub berhasil di-deploy otomatis ke AWS Server dan domain https://adiwijaya.studentdumbways.my.id.."
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Send Discord Notification (Failure)
+        if: failure()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: error
+          details: "Gagal! Pipeline CI/CD Frontend mengalami kendala pada tahap build, push, atau deployment ke AWS Server."
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+```
+
+---
+
+### CI/CD Yang Sudah Dijalankan di frontend-wayshub
+
+<p><img width="1919" height="1038" alt="image" src="https://github.com/user-attachments/assets/ea88dfdf-d8ea-448c-a51e-32844e2374b1" /></p>
+
+---
+
+### - backend-wayshub
+
+```yaml
+
+name: CI/CD Wayshub Backend to AWS Server
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+        #masuk ke database 
+      - name: database
+        run: |
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" 
+          echo "DB_NAME=${{ secrets.DB_NAME }}" 
+          echo "DB_USER=${{ secrets.DB_USER }}" 
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" 
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+        #build docker images
+      - name: Build Docker Image 
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/wayshub-backend:latest .
+
+      - name: Send Discord Notification (Build Image Success)
+        if: success()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: info
+          details: "Sukses! Docker image berhasil di-build dari Dockerfile."
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Run Docker Compose (Test Stage)
+        run: docker compose up -d
+
+      - name: Run Backend Tests
+        run: docker compose exec -T backend npm test
+
+      - name: Send Discord Notification (Test Success)
+        if: success()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: info
+          details: "Sukses! Tahap Docker Compose dan Backend Tests berhasil dijalankan."
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+        # uplode docker images
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/wayshub-backend:latest
+
+      - name: Send Discord Notification (Push Success)
+        if: success()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: info
+          details: "Sukses! Docker image berhasil di-push ke Docker Hub."
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+        # matikan docker images dan hapus images
+      - name: Down Docker Compose and Cleanup Images
+        if: always()
+        run: |
+          docker compose down
+          docker rmi ${{ secrets.DOCKER_USERNAME }}/wayshub-backend:latest || true
+          docker image prune -f
+
+        # build docker compose
+      - name: Deploy to AWS Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/adi/docker/wayshub-backend
+            git pull origin main
+            docker compose pull
+            docker compose up -d --force-recreate
+            docker system prune -f 
+
+      - name: Send Discord Notification (Deploy to AWS Server)
+        if: success()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: info
+          details: "Backend Deployment Sukses! Aplikasi frontend wayshub berhasil di-deploy otomatis ke AWS Server dan domain https://api.adiwijaya.studentdumbways.my.id."
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Send Discord Notification (Failure)
+        if: failure()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: error
+          details: "Gagal! Pipeline CI/CD mengalami kendala pada tahap build, test, push, deployment, atau hasil validasi TestSprite AI."
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+```
+
+---
+
+### CI/CD Yang Sudah Dijalankan di backend-wayshub
+
+<p><img width="1919" height="1040" alt="image" src="https://github.com/user-attachments/assets/67e2a2ed-1d6f-4d0d-8540-b5c191ecdb4d" /></p>
+
+
+
+
+
+
