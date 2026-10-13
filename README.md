@@ -39,6 +39,13 @@ Berikut adalah beberapa teknologi yang dipelajari dan digunakan selama bootcamp:
 
 ---
 
+## 🛠️ Installation tools CI/CD
+
+|Tools | Deskripsi Singkat |
+| :--- | :--- |
+| **[Trivy](https://github.com/AdiWijaya5/Installing-Trivy)** | Cara Menginstall Trivy. Fungsi pemindaian kerentanan Image Docker |
+| **[SonarQube](https://github.com/AdiWijaya5/Installing-SonarQube)** | Cara Menginstall SonarQube. Fungsi analisis kualitas dan keamanan kode secara otomatis di dalam alur kerja (CI/CD) |
+
 ## 👨‍💻 Author
 * **Adi Wijaya**
 * GitHub: [@AdiWijaya5](https://github.com/AdiWijaya5)
