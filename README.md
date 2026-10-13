@@ -8,16 +8,16 @@ Repositori ini berisi kumpulan tugas (tasks), latihan, dan proyek harian yang sa
 
 | Task / Project | Deskripsi Singkat | Stage | Status |
 | :--- | :--- | :--- | :--- |
-| **[Task-Project-1](./Task-Week-01)** | Pengenalan dasar DevOps | Stage 1 | Selesai |
-| **[Task-Project-2](./Task-Week-02)** | Pengenalan Server & Konfigurasi Dasar | Stage 1 | Selesai |
-| **[Task-Project-3](./Task-Week-03)** | Akses Server & Konfigurasi Lanjutan | Stage 1 | Selesai |
-| **[Task-Project-4](./Task-Week-04)** | Setup Git and Github in Ubuntu | Stage 1 | Selesai |
-| **[Task-Project-5](./Task-Week-05)** | Application in Server/Deploy app  NodeJS, Python, and Go | Stage 1 | Selesai |
-| **[Task-Project-6](./Task-Week-06)** | Reverse Proxy | Stage 1 | Selesai |
-| **[Task-Project-7](./Task-Week-07)**  | Cloud Computing/ Deploy to Server | Stage 2 | Selesai |
-| **[Task-Project-8](./Task-Week-08)**  | Containerization and CICD Concept | Stage 2 | Selesai |
-| **[Task-Project-9](./Task-Week-09)**  | Automation Terraform, Ansible dan Monitoring | Stage 2 | Selesai |
-| **[Task-Project-10](./Task-Week-10)** | Kubernetes setup and Wayshub deployment | Stage 2 | Selesai |
+| **[Project-1](./Task-Week-01)** | Pengenalan dasar DevOps | Stage 1 | Selesai |
+| **[Project-2](./Task-Week-02)** | Pengenalan Server & Konfigurasi Dasar | Stage 1 | Selesai |
+| **[Project-3](./Task-Week-03)** | Akses Server & Konfigurasi Lanjutan | Stage 1 | Selesai |
+| **[Project-4](./Task-Week-04)** | Setup Git and Github in Ubuntu | Stage 1 | Selesai |
+| **[Project-5](./Task-Week-05)** | Application in Server/Deploy app  NodeJS, Python, and Go | Stage 1 | Selesai |
+| **[Project-6](./Task-Week-06)** | Reverse Proxy | Stage 1 | Selesai |
+| **[Project-7](./Task-Week-07)**  | Cloud Computing/ Deploy to Server | Stage 2 | Selesai |
+| **[Project-8](./Task-Week-08)**  | Containerization and CICD Concept | Stage 2 | Selesai |
+| **[Project-9](./Task-Week-09)**  | Automation Terraform, Ansible dan Monitoring | Stage 2 | Selesai |
+| **[Project-10](./Task-Week-10)** | Kubernetes setup and Wayshub deployment | Stage 2 | Selesai |
 | **[Final-Taks](./Final-Task)** | Deploy dumbmerch staging/production, CICD, Testing, Gatway, Monitoring, Kubernetes | Final Stage 2 | Selesai |
 
 
