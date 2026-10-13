@@ -29,13 +29,13 @@ Repositori ini berisi kumpulan tugas (tasks), latihan, dan proyek harian yang sa
 Berikut adalah beberapa teknologi yang dipelajari dan digunakan selama bootcamp:
 * **Operating System:** Linux (Ubuntu/CentOS)
 * **Version Control:** Git & GitHub
-* **Containerization:** Docker & Docker Compose
-* **CI/CD:** GitHub Actions / Jenkins
+* **Containerization:** Docker & Docker Compose / Containerd
+* **CI/CD:** GitHub Actions / Jenkins / SonarQube / Trivy
 * **Infrastructure as Code (IaC):** Terraform
 * **Configuration Management & Automation:** Ansible
-* **Monitoring & Observability:** Prometheus & Grafana
+* **Monitoring & Observability:** Prometheus & Grafana / node-exporter
 * **Container Orchestration:** Kubernetes (K3s) & Helm
-* **Cloud & Infrastructure:** AWS (on diupdate)
+* **Cloud & Infrastructure:** AWS 
 
 ---
 
