@@ -4,11 +4,11 @@ Repositori ini berisi kumpulan tugas (tasks), latihan, dan proyek harian yang sa
 
 ---
 
-## 📂 Daftar Tugas & Navigasi Harian
+## 📂 Daftar Tugas / Project & Navigasi Harian
 
-| Project | Deskripsi Singkat | Tools | Stage | Status |
+| Daftar Project | Deskripsi Singkat | Tools | Stage | Status |
 | :--- | :--- | :--- | :--- |:--- |
-| **[Project-1](./Task-Week-01)** | Pengenalan dasar DevOps | - |Stage 1 | Selesai |
+| **[Project-1](./Task-Week-01)**| Pengenalan dasar DevOps | - |Stage 1 | Selesai |
 | **[Project-2](./Task-Week-02)** | Pengenalan Server & Konfigurasi Dasar | wsl local server | Stage 1 | Selesai |
 | **[Project-3](./Task-Week-03)** | Akses Server & Konfigurasi Lanjutan | wsl local serverr | Stage 1 | Selesai |
 | **[Project-4](./Task-Week-04)** | Setup Git and Github in Ubuntu | wsl local server | Stage 1 | Selesai |
@@ -20,8 +20,6 @@ Repositori ini berisi kumpulan tugas (tasks), latihan, dan proyek harian yang sa
 | **[Project-10](./Task-Week-10)** | Kubernetes setup and Wayshub deployment | AWS, K8s, Helm, NodeJS, express.js  | Stage 2 | Selesai |
 | **[Final-Taks](./Final-Task)** | Deploy dumbmerch staging/production, CICD, Testing, Gatway, Monitoring, Kubernetes | Final Stage 2 | Selesai |
 
-
-*'Daftar di atas akan terus diperbarui seiring berjalannya sesi bootcamp.*
 
 ---
 
