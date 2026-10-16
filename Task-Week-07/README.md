@@ -68,9 +68,26 @@ Deploy database MySQ
 
   18.ketika tono/guest mau menambahkan data ke tabel transaction dengan komen yang sama seperti admin. 
      akan tetapi erorr karena tidak ada akses buat tono/guest untuk INSERT (menambahkan), UPDATE (edit) dan DELETE (menghapus) hanya bisa bisa mengakses untuk melihat saja (SELECT)
-    <img width="979" height="452" alt="image" src="https://github.com/user-attachments/assets/ef3308e1-8fc4-49f6-a786-c9e9b9b4c039" />
+    <p><img width="979" height="452" alt="image" src="https://github.com/user-attachments/assets/ef3308e1-8fc4-49f6-a786-c9e9b9b4c039" /></p>
 
-  
+Gateway  
+
+<p><img width="1189" height="657" alt="image" src="https://github.com/user-attachments/assets/0fa131f2-ac28-4104-ad4d-660c5acd94de" /></p>
+
+Deploy App
+
+* Seting Api di frontend
+<p><img width="693" height="259" alt="image" src="https://github.com/user-attachments/assets/01f2069a-5c68-4e0d-8213-208301e8b21c" /></p>
+
+* Deploy App Mengunakan pm2
+<p><img width="689" height="303" alt="image" src="https://github.com/user-attachments/assets/7c1430c0-75fd-42de-818d-2139b99308f6" />
+</p>
+
+* Hasil Webset Frontend
+<p><img width="1389" height="704" alt="image" src="https://github.com/user-attachments/assets/93c55fd0-9921-42b8-9363-9dd5b96df0c7" /></p>
+
+* Hasil Sudah Terkait Api Website
+<p><img width="1386" height="743" alt="image" src="https://github.com/user-attachments/assets/181d73f9-ed43-4f30-96f6-7b82bc0b8e31" /></p>
 
     
 
