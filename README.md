@@ -14,7 +14,7 @@ Repositori ini berisi kumpulan tugas (tasks), latihan, dan proyek harian yang sa
 | **[Project-4](./Task-Week-04)** | Setup Git and Github in Ubuntu | wsl local server | Stage 1 | Selesai |
 | **[Project-5](./Task-Week-05)** | Application in Server/Deploy app  | local Server, NodeJS, Python, and Go | Stage 1 | Selesai |
 | **[Project-6](./Task-Week-06)** | Reverse Proxy | local Server, NodeJS, express.js | Stage 1 | Selesai |
-| **[Project-7](./Task-Week-07)**  | Cloud Computing / Deploy Database | AWS, NodeJS, express.js  | Stage 2 | Selesai |
+| **[Project-7](./Task-Week-07)**  | Cloud Computing / Deploy Database | AWS, Mysql, NodeJS, express.js  | Stage 2 | Selesai |
 | **[Project-8](./Task-Week-08)**  | Containerization and CICD Concept | AWS, Jenkins, GitAction, NodeJS, express.js | Stage 2 | Selesai |
 | **[Project-9](./Task-Week-09)**  | Automation Terraform, Ansible dan Monitoring | AWS, Grafana, Prometeus, Node-exporter | Stage 2 | Selesai |
 | **[Project-10](./Task-Week-10)** | Kubernetes setup and Wayshub deployment | AWS, K8s, Helm, NodeJS, express.js  | Stage 2 | Selesai |
